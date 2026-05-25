@@ -78,38 +78,30 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
 
+      - name: Build C# project (ExportRelease)
+        run: dotnet build Nightwalk.csproj -c ExportRelease --no-restore
+
+      - name: Generate Godot C# bindings
+        shell: pwsh
+        run: |
+          # Required step between `dotnet build` and `godot --export-release`
+          # for .NET projects (per godotengine/godot#92267 community workaround).
+          # build-solutions populates GodotSharp's editor-API bindings used by
+          # the export pipeline; without it godot reports "Failed to load
+          # project assembly" even when the project assembly exists.
+          $ErrorActionPreference = 'Continue'
+          godot --headless --build-solutions --quit
+          Write-Host "build-solutions exit code: $LASTEXITCODE"
+
       - name: Godot headless import pass
         shell: pwsh
         run: |
-          # Import first so .godot/ exists before any C# build — Godot.NET.Sdk
-          # uses .godot/ to compute the assembly output path.
           $ErrorActionPreference = 'Continue'
           godot --headless --import
           Write-Host "Import exit code: $LASTEXITCODE"
           if (-not (Test-Path .godot)) {
             Write-Error ".godot/ cache directory was not produced"
             exit 1
-          }
-
-      - name: Publish C# project (ExportRelease)
-        shell: pwsh
-        run: |
-          # `dotnet build` only produces Nightwalk.dll. The Godot export
-          # needs a full publish output — runtimeconfig.json + transitive
-          # dependency dlls — so godot's mono runtime can hostfxr-load it.
-          dotnet publish Nightwalk.csproj -c ExportRelease --no-restore
-          Write-Host "===== Publish output search ====="
-          Get-ChildItem -Path . -Filter "Nightwalk.dll" -Recurse -ErrorAction SilentlyContinue |
-            Select-Object FullName, Length, LastWriteTime | Format-Table | Out-Host
-          Write-Host "===== runtimeconfig search ====="
-          Get-ChildItem -Path . -Filter "*.runtimeconfig.json" -Recurse -ErrorAction SilentlyContinue |
-            Select-Object FullName, Length | Format-Table | Out-Host
-          Write-Host "===== ExportRelease dir contents ====="
-          $exportDir = ".godot/mono/temp/bin/ExportRelease"
-          if (Test-Path $exportDir) {
-            Get-ChildItem $exportDir -Recurse | Format-Table Name, Length | Out-Host
-          } else {
-            Write-Host "(no $exportDir)"
           }
 
       - name: Export Windows build
