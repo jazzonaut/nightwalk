@@ -107,14 +107,34 @@ jobs:
       - name: Export Windows build
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Continue'
           New-Item -ItemType Directory -Force -Path bin | Out-Null
-          godot --headless --export-release "Windows Desktop" bin/Nightwalk.exe
+
+          Write-Host "===== Export templates check ====="
+          $templatesRoot = "$env:APPDATA\Godot\export_templates"
+          if (Test-Path $templatesRoot) {
+            Get-ChildItem $templatesRoot -Recurse -Depth 1 | Select-Object Mode, Name
+          } else {
+            Write-Host "(no $templatesRoot directory)"
+          }
+
+          Write-Host "===== Running godot export ====="
+          godot --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe 2>&1 | Tee-Object -FilePath export.log
+          Write-Host "Export exit code: $LASTEXITCODE"
+
+          Write-Host "===== bin/ contents after export ====="
+          if (Test-Path bin) {
+            Get-ChildItem bin -Recurse | Select-Object Mode, Length, Name
+          } else {
+            Write-Host "(bin/ does not exist)"
+          }
+
           if (-not (Test-Path bin/Nightwalk.exe)) {
-            Write-Error "Export produced no exe"
+            Write-Host "===== export.log (last 300 lines) ====="
+            Get-Content export.log -Tail 300
+            Write-Error "Export produced no exe — see log above"
             exit 1
           }
-          Write-Host "Build output:"
-          Get-ChildItem bin
 
       - name: Stage release contents
         shell: pwsh
