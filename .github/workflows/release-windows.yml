@@ -170,19 +170,13 @@ jobs:
           Write-Host "GodotSharp dir: $sharpDir (exists: $(Test-Path $sharpDir))"
 
           Write-Host "===== Running godot export ====="
+          # Tee-Object pipeline works now that we have a .exe-suffixed binary
+          # (PowerShell refused the pipeline for the extension-less alias).
           $logFile = Join-Path $env:RUNNER_TEMP "godot-export.log"
-          # *> captures all streams to file; avoids PS native-command stdout
-          # buffer truncation that's been swallowing output in earlier runs.
-          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe *> $logFile
+          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe 2>&1 | Tee-Object -FilePath $logFile
           $exitCode = $LASTEXITCODE
           Write-Host "===== Export exit code: $exitCode ====="
-          Write-Host "===== godot output (from $logFile) ====="
-          if (Test-Path $logFile) {
-            Get-Content $logFile
-          } else {
-            Write-Host "(no log file produced)"
-          }
-          Write-Host "===== end godot output ====="
+          Write-Host "===== Captured log line count: $((Get-Content $logFile -ErrorAction SilentlyContinue | Measure-Object -Line).Lines) ====="
 
           Write-Host "===== bin/ contents after export ====="
           if (Test-Path bin) {
