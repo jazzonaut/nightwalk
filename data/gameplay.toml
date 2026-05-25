@@ -1,0 +1,162 @@
+# Gameplay configuration
+
+[energy]
+max_energy = 50.0
+regen_rate = 20.0
+
+[buildings]
+rooftop_height_tolerance = 2.0
+min_rooftop_height = 10.0
+
+# Window overlay for climbed buildings
+highlight_windows = false
+window_highlight_color = "#ffcc88"
+window_highlight_intensity = 4.0
+
+# Sky beam from climbed buildings
+highlight_beam = true
+beam_color = "#88a8ffff"
+beam_intensity = 1.0               # Reduced for softer look
+beam_width = 0.4                   # Slightly narrower for subtlety
+beam_height = 500.0
+beam_start_offset = 5.0            # Height above roof where beam starts
+
+# Rising particles from climbed buildings (cyberpunk style)
+highlight_particles = true
+particle_start_offset = 5.0        # Height above roof where particles spawn
+particle_spawn_radius = 1.0        # Spawn area radius
+particle_rise_speed = 10.0          # Upward velocity
+particle_lifetime = 20.0            # Seconds before fade
+particle_count = 100                # Active particles
+particle_size = 0.6               # Base particle size
+particle_color = ""                # Uses beam_color if empty
+particle_visibility_range = 100.0  # Distance at which particles fade out (0 = no LOD)
+particle_visibility_margin = 40.0  # Fade gradient length
+
+[scoring]
+combo_max_multiplier = 4.0
+combo_increment = 0.25
+combo_decay_rate = 0.5
+combo_decay_delay = 2.0
+
+[fall_damage]
+velocity_threshold = 20.0    # Minimum downward velocity to trigger penalty (~5.6m fall)
+points_per_velocity = 5.0   # Points removed per unit above threshold
+max_penalty = 500            # Cap on single fall penalty
+min_penalty = 10             # Minimum penalty once triggered
+
+[score_effects]
+effect_duration = 3.2
+
+# Gain effect (score increase) - neon vibes
+gain_saturation_peak = 3.0
+gain_bloom_peak = 4.0
+gain_contrast_peak = 0.7       # Lower = brighter
+gain_highlight_tint = "#99dfffff"  # Cyan-green
+
+# Loss effect (score decrease) - danger/damage
+loss_saturation_peak = 0.7
+loss_chromatic_peak = 0.015
+loss_contrast_peak = 1.3
+loss_color_grading_strength = 0.6
+loss_shadow_tint = "#ff804d"     # Orange-red
+
+[view_modes]
+birds_eye_height = 120.0          # Camera height above player in meters
+birds_eye_min_height = 40.0       # Minimum camera height in meters
+birds_eye_max_height = 400.0      # Maximum camera height in meters
+birds_eye_zoom_step = 10.0        # Mouse wheel zoom step in meters
+birds_eye_zoom_speed = 120.0      # Zoom speed in meters per second
+birds_eye_pitch_degrees = -80.0   # Default pitch for bird's eye view
+birds_eye_pitch_min_degrees = -88.0  # Minimum pitch (more top-down)
+birds_eye_pitch_max_degrees = -20.0  # Maximum pitch (more tilted)
+birds_eye_look_sensitivity = 0.7  # Mouse sensitivity multiplier in bird's eye
+birds_eye_transition_duration = 0.35 # Seconds to transition in/out of bird's eye
+
+[collectibles]
+# Shape type
+min_faces = 4                     # Minimum (4=tetra, 6=cube, 8=octa, 12=dodeca, 20=icosa)
+max_faces = 20                    # Maximum face count
+
+# Appearance
+size = 0.5                        # Shape radius in meters
+float_height = 2.0                # Height above rooftop center
+spin_speed = 45.0                 # Rotation degrees per second
+bob_amplitude = 0.2               # Vertical oscillation in meters
+bob_speed = 1.0                   # Oscillation cycles per second
+
+# Glow effect
+glow_color = "#ff66ff"            # Magenta/pink neon color
+glow_intensity = 8.0              # Emission energy multiplier
+edge_color = "#220022"            # Dark edge lines color
+edge_thickness = 0.02             # Edge thickness as fraction of size
+
+# Point light (illuminates rooftop)
+light_range = 8.0                 # OmniLight3D range
+light_energy = 1.5                # Light brightness
+
+# Proximity visibility
+visibility_distance = 75.0        # Distance at which fade-in starts
+visibility_fade_margin = 20.0     # Fade gradient distance
+
+# Scoring
+base_points = 30                 # Base points per collection
+height_bonus_multiplier = 0.5     # Additional points per meter of building height
+
+# Empty plot collectibles
+empty_plot_points = 150            # Fixed points for empty plot collectibles
+empty_plot_float_height = 3.0     # Height above ground level
+empty_plot_spawn_chance = 1.0     # Chance (0-1) that an empty plot gets a collectible
+
+# Collection effect (plasma globe)
+particle_count = 16               # Number of plasma bolts
+particle_speed = 15.0             # Bolt length in meters
+particle_duration = 1.0           # Effect duration in seconds
+effect_color = "#a866ffff"        # Bolt color
+effect_thickness = 0.01           # Bolt thickness
+effect_alpha = 0.4                # Bolt transparency (0-1)
+effect_grow_duration = 0.2       # How fast bolts extend
+
+[flyby_camera]
+base_speed = 30.0                 # Base speed in meters per second
+min_speed_on_turns = 18.0         # Minimum speed on sharp corners
+max_roll_degrees = 25.0           # Maximum camera bank angle
+roll_smoothing = 5.0              # Higher = snappier roll response
+look_ahead_t = 0.02               # How far ahead to look on path (0-1)
+base_fov = 75.0                   # Base field of view
+max_fov_increase = 12.0           # FOV increase at max speed
+enter_transition_duration = 3.0   # Seconds to transition in
+exit_transition_duration = 3.0    # Seconds to transition out
+vertical_offset = 2.0             # Meters above beam path
+post_process_multiplier = 1.3     # Boost post-processing effects
+curvature_threshold = 0.1         # Curvature threshold for speed reduction
+min_waypoints = 2                 # Minimum waypoints required to trigger flyby
+
+[screensaver]
+# Path generation
+waypoints_ahead = 12              # Number of waypoints to maintain ahead of camera
+min_waypoint_distance = 25.0      # Minimum distance between waypoints in meters
+max_waypoint_distance = 60.0      # Maximum distance between waypoints in meters
+turn_chance = 0.5                 # Chance (0-1) to turn at intersections
+
+# Altitude (street-level flying along roads)
+low_altitude_min = 4.0            # Minimum flight altitude
+low_altitude_max = 40.0           # Maximum flight altitude
+altitude_change_chance = 0.3      # Chance (0-1) to change altitude at each waypoint
+
+# Camera speed
+base_speed = 18.0                 # Base camera speed in meters per second
+min_speed_multiplier = 0.6        # Speed multiplier on tight turns (0-1)
+speed_smoothing = 3.0             # How fast speed adjusts (higher = snappier)
+
+# Camera roll
+max_roll_degrees = 5.0           # Maximum roll angle when turning
+roll_smoothing = 3.0              # How fast roll adjusts (higher = snappier)
+
+# Camera orientation
+look_ahead_t = 0.05               # How far ahead on path to look (0-1)
+orientation_smoothing = 4.0       # How fast orientation smooths (higher = snappier)
+curvature_threshold = 0.1         # Curvature threshold for speed/roll response
+
+# Transitions
+transition_duration = 5.0         # Duration of enter/exit transitions in seconds

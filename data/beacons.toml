@@ -1,0 +1,93 @@
+# Beacon synchronization system configuration
+
+[beacon]
+# Appearance - glowing glass pyramid with highlighted edges
+base_radius = 1.5           # Radius of hexagonal pyramid base
+height = 2.0                # Height of beacon pyramid
+transparency = 0.35         # Glass body transparency (0-1)
+tint_color = "#E8F4FF"      # Slight blue-white tint for glass
+edge_color = "#FFFFFF"      # Glowing edge color (blended with frequency)
+edge_glow_intensity = 4.0   # Edge glow emission intensity
+edge_thickness = 0.025      # Thickness of edge lines
+glow_intensity = 2.0        # Light intensity when idle
+active_glow_intensity = 5.0 # Light intensity when active
+
+# Generation
+spawn_chance = 0.1          # Chance for beacon on eligible building
+min_building_height = 15.0  # Minimum building height for beacon spawning
+frequency_grid_size = 150.0 # Grid cell size for spreading frequencies spatially
+min_same_frequency_distance = 200.0  # Minimum distance between beacons of same frequency
+
+# Frequency colors (8 distinct colors for beacon matching)
+frequencies = [
+    "#00FFFF",  # Cyan
+    "#FF8800",  # Orange
+    "#9DFF00",  # Lime green
+    "#FF00FF",  # Magenta
+    "#FF4466",  # Coral red
+    "#00FF88",  # Mint
+    "#8866FF",  # Purple
+    "#FFDD00",  # Yellow
+]
+
+# Marker beam (vertical indicator)
+marker_beam_width = 0.5
+marker_beam_height = 300.0
+marker_beam_intensity = 1.5
+
+# Signal beam (routing beam)
+signal_beam_width = 0.15
+signal_beam_max_length = 150.0
+broken_beam_opacity = 0.2  # Opacity for beam endpoint when it fades out (0-1)
+
+[prism]
+radius = 1.0                # Hexagon radius of the prism
+length = 1.0                # Prism length along beam axis
+transparency = 0.4         # Glass body transparency (0-1)
+tint_color = "#E0F0FF"      # Slight blue tint for glass
+edge_color = "#FFFFFF"      # Glowing edge color
+edge_glow_intensity = 3.0   # Edge glow emission intensity
+edge_thickness = 0.01       # Thickness of edge lines
+spawn_height = 3.0          # Height above beacon where prism spawns
+max_prisms = 100             # Maximum prisms per sync attempt
+placement_cost = 10         # Score cost to place a prism
+rotation_sensitivity = 0.05  # How fast prism rotates with mouse
+max_placement_distance = 50.0
+
+# Preview
+preview_color = "#f2fff9ff"
+invalid_color = "#FF4444"
+
+# POV camera
+pov_camera_offset = 3.0     # Distance behind prism for POV camera
+pov_camera_vertical_offset = 0.5  # Vertical offset to make beam visible
+pov_prism_opacity = 0.15    # Prism opacity during POV mode (0-1)
+pov_transition_duration = 0.3  # Smooth camera transition duration (seconds)
+pov_zoom_enabled = true        # Whether zoom is enabled in POV mode
+pov_min_fov = 20.0             # Minimum FOV when zoomed in
+pov_max_fov = 90.0             # Maximum FOV when zoomed out
+pov_zoom_step = 5.0            # FOV change per mouse wheel step
+
+# Snap thresholds
+beam_snap_threshold = 2.0        # Distance for beam to snap to prism
+placement_snap_threshold = 2.0   # Distance for placement preview to snap to beam
+
+# Placement
+wall_offset = 1.5                # Offset from wall surfaces to prevent clipping
+
+# Exit light (inside prism)
+exit_glow_color = "#FFFAE0"      # Warm pale yellow default color
+exit_light_energy = 0.5          # Light source brightness
+exit_light_range = 0.9           # Light source range in meters
+
+[rewards]
+base_points = 200           # Points for completing a sync
+distance_bonus = 1.0        # Points per meter of beam travel
+prism_bonus = 10            # Bonus points per prism below max (fewer = more bonus)
+
+[interaction]
+activation_distance = 3.0   # Max distance to activate beacon
+spawn_distance = 150.0      # Distance at which beacons spawn
+despawn_distance = 200.0    # Distance at which beacons despawn
+active_frequency_spawn_distance = 1000.0    # Extended spawn distance for active frequency
+active_frequency_despawn_distance = 1200.0  # Extended despawn distance for active frequency

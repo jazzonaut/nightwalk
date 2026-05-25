@@ -1,0 +1,163 @@
+# Resonance Mode Configuration
+# Tension and stealth mechanics for the exploration gameplay
+
+[mode]
+default_mode = "silence"          # Default mode on launch ("silence" or "resonance")
+
+[player]
+height = 3.0                      # Player height for detection targeting
+center_offset_fraction = 0.5      # Fraction of height for center mass offset
+
+[alert]
+pickup_increase = 0.08            # Alert increase per collectible pickup (0-1)
+seeker_detection_increase = 0.03  # Alert increase per second while detected
+decay_rate = 0.02                 # Alert decay per second when safe
+decay_delay = 3.0                 # Seconds before decay starts
+warden_spawn_threshold = 0.30     # Alert level to spawn Warden
+warden_despawn_threshold = 0.15   # Alert level for Warden to leave (must be < spawn threshold for hysteresis)
+vulnerability_threshold = 0.80    # Alert level for Warden vulnerability
+
+[exposure]
+rise_rate = 0.15                  # Exposure increase per second while in Seeker scan cone
+fall_rate = 0.10                  # Exposure decrease per second when safe
+score_drain_rate = 50.0           # Points drained per second while exposed
+max_exposure_penalty = 500        # Score penalty at 100% exposure
+max_exposure_alert_spike = 0.20   # Alert increase at 100% exposure
+max_exposure_reset_threshold = 0.9 # Exposure level below which max exposure can trigger again
+
+[warden]
+spawn_height = 450.0              # Height where Warden spawns
+drift_speed = 5.0                 # Units per second toward player
+vulnerability_duration = 10.0     # Seconds the core stays exposed
+departure_speed = 20.0            # Speed at which Warden departs
+scale = 150.0                     # Warden body scale in meters
+
+# Spawn/arrival settings
+spawn_descent_offset = 50.0       # Extra height at spawn before descending
+descent_speed_multiplier = 5.0    # Multiplier for descent speed vs drift speed
+arrival_threshold = 1.0           # Distance threshold for considering arrived
+vulnerable_drift_multiplier = 0.5 # Drift speed multiplier when vulnerable
+departure_distance = 300.0        # Distance above target to consider departed
+drift_min_distance = 1.0          # Minimum distance before drift stops
+
+# Shard cluster visual settings
+shard_count = 28                  # Number of shards in the cluster
+shard_base_color = "#0a1628"      # Deep navy (outer edges)
+shard_bright_color = "#00ffff"    # Bright cyan (core glow)
+vulnerable_color = "#ff8000"      # Orange (vulnerable core shard)
+cluster_radius = 0.3              # Cluster radius as fraction of scale
+core_hit_radius_fraction = 0.15   # Core hit area as fraction of scale
+
+# Visual animation (Godot-side)
+hover_speed = 0.5                 # Hover animation speed
+hover_amplitude = 5.0             # Hover animation amplitude
+core_glow_lerp_in = 3.0           # Core glow fade-in speed
+core_glow_lerp_out = 5.0          # Core glow fade-out speed
+core_glow_pulse_base = 0.7        # Base value for glow pulse
+core_glow_pulse_amplitude = 0.3   # Amplitude of glow pulse
+core_glow_pulse_frequency = 4.0   # Frequency of glow pulse
+core_light_energy = 5.0           # Core light energy multiplier
+
+[seeker]
+spawn_chance = 0.4                # Chance per collectible to spawn Seeker
+spawn_offset_range = 30.0         # Random offset from Warden when spawning
+travel_speed_low = 15.0           # Base travel speed at low alert
+travel_speed_high = 35.0          # Travel speed at high alert
+scan_duration = 5.0               # Seconds spent scanning at ping location
+scan_cone_angle = 20.0            # Scan cone half-angle in degrees
+scan_cone_range = 30.0            # Scan cone range in meters
+patrol_radius = 15.0              # Radius of patrol orbit while scanning
+return_speed = 30.0               # Speed returning to Warden
+max_count_low_alert = 2           # Max Seekers at alert 0-0.4
+max_count_med_alert = 4           # Max Seekers at alert 0.4-0.7
+max_count_high_alert = 6          # Max Seekers at alert 0.7+
+scale = 3.5                       # Seeker diameter in meters
+ring_color = "#b866f3ff"          # Deep purple rings
+scan_color = "#ff3c0080"          # Red-magenta scan cone (with alpha)
+
+# Movement (Perlin noise)
+wander_amplitude = 12.0           # Perlin noise amplitude for organic wandering
+wander_frequency = 0.3            # Perlin noise frequency
+acceleration = 3.0                # Velocity acceleration rate
+hover_height = 20.0               # Height above target when scanning
+proximity_fade_distance = 50.0    # Distance at which wander fades out
+
+# Approaching
+approach_radius = 40.0            # Distance to activate searchlight
+approach_speed = 10.0             # Slower speed when approaching
+arrival_distance = 5.0            # Distance to consider arrived at target
+
+# Scanning
+orbit_speed = 0.3                 # Orbital angular speed (rad/s)
+altitude_oscillation = 3.0        # Altitude wave amplitude during scan
+scan_speed_multiplier = 0.5       # Speed multiplier during scanning
+min_scan_before_redirect = 3.0    # Minimum scan time before allowing ping redirect
+sweep_frequency = 3.0             # Sweep pattern time multiplier
+sweep_radius_multiplier = 0.6     # Sweep radius as fraction of patrol radius
+sweep_vertical_amplitude = 5.0    # Vertical sweep range in meters
+noise_pull_max_distance = 180.0   # Max distance for collectible ping to pull hunters/returners
+
+# Hunting
+hunt_duration = 12.0              # Seconds searching after losing player
+hunt_speed = 12.0                 # Speed during hunt mode
+hunt_spiral_angular_speed = 0.5   # Spiral search angular speed
+hunt_spiral_expansion = 2.0       # Spiral radius expansion rate
+
+# Returning
+return_pool_distance = 20.0       # Distance to Warden to despawn
+recall_pool_distance = 30.0       # Distance to Warden during recall to despawn
+recall_timeout = 30.0             # Maximum recall duration before forced despawn
+
+# Searchlight
+light_energy = 4.0                # Spotlight brightness
+light_volumetric_energy = 8.0     # Volumetric fog intensity
+
+# Alert tier thresholds
+alert_tier_high = 0.7             # Alert level for high tier
+alert_tier_medium = 0.4           # Alert level for medium tier
+
+# Detection
+detection_ping_cooldown = 2.0     # Seconds between detection pings
+detection_grace_period = 0.5      # Seconds before hunt mode after losing sight
+dispatch_delay = 0.5              # Seconds after spawn before dispatching
+idle_patrol_min_radius = 30.0     # Minimum patrol radius when no ping
+idle_patrol_max_radius = 80.0     # Maximum patrol radius when no ping
+
+# Ping scoring
+ping_recency_window = 10.0        # Seconds for recency bonus calculation
+ping_recency_weight = 200.0       # Score weight for recency
+ping_priority_weight = 500.0      # Score weight for priority
+ping_distance_penalty = 1.0       # Score penalty per unit distance
+ping_assigned_penalty = 300.0     # Score penalty per assigned seeker
+ping_redirect_threshold = 400.0   # Score difference to trigger redirect
+ping_noise_priority = 1.0         # Priority for noise pings
+ping_detection_priority = 3.0     # Priority for detection pings
+ping_noise_expiry = 30.0          # Seconds before noise ping expires
+ping_detection_expiry = 8.0       # Seconds before detection ping expires
+
+# Collision avoidance
+avoidance_strength = 15.0         # Force of avoidance steering
+avoidance_ray_length = 15.0       # Raycast distance for obstacle detection
+
+# Visual animation (Godot-side)
+hover_speed = 3.0                 # Hover bobbing speed
+hover_amplitude = 0.5             # Hover bobbing height
+ring_rotation_speed = 2.0         # Ring rotation speed
+aim_snap_speed = 8.0              # Speed for snap-to-target aiming
+aim_sweep_speed = 3.0             # Speed for sweep aiming
+aim_track_speed = 6.0             # Speed for player tracking
+scan_intensity_lerp = 5.0         # Scan light fade speed
+
+[counterplay]
+spotlight_lure_charge_time = 2.5  # Seconds to hold spotlight for decoy
+decoy_duration = 8.0              # How long decoy persists
+decoy_priority = 1.5              # Seekers prefer decoys over noise pings
+max_active_decoys = 2             # Maximum simultaneous decoys
+
+[repel]
+beam_contact_duration = 4.0       # Seconds to hold beam on Warden core
+beam_contact_decay_rate = 0.5     # Rate at which beam progress decays when not hitting
+alert_drop = 0.50                 # Alert reduction on successful repel
+score_reward = 500                # Points awarded for repel
+calm_window = 20.0                # Seconds of scan suppression after repel
+repel_cooldown = 5.0              # Seconds before vulnerability can trigger again after repel

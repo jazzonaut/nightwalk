@@ -1,0 +1,35 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+*.cs.uid
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+
+# IDE
+.idea/
+*.swp
+*~
+
+# Build outputs
+TestResults/
+
+# Godot exports & packs (never commit)
+*.pck
+*.exe
+*.zip
+*.dll
+*.pdb
+
+# Claude / scratch
+tmpclaude-*
+*.tmp.cwd
+
+# Old / backup project files
+*.old
+*.bak

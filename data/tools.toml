@@ -1,0 +1,67 @@
+# Player tools configuration
+
+[spotlight]
+color = "#FFFFFF"           # Pure white
+energy = 30.0
+range = 100.0
+spot_angle = 20.0           # Focused beam
+attenuation = 1.2
+offset_x = 0.0
+offset_y = 0.0
+offset_z = -0.3
+
+[zipline]
+# Limits
+max_ziplines = 10             # Maximum ziplines at once (0 = unlimited)
+placement_cost = 15         # Score cost to place a zipline
+
+# Placement
+max_distance = 50.0          # Maximum raycast distance for placement
+min_cable_length = 5.0       # Minimum distance between anchors
+
+# Removal highlighting
+highlight_color = "#FF8800"  # Orange highlight when hovering existing zipline
+highlight_distance = 50.0    # Max raycast distance for hover detection
+
+# Preview dot
+preview_dot_radius = 0.40
+preview_color = "#00FF88"
+preview_emission = 2.0
+valid_placement_color = "#00FF88"
+obstructed_placement_color = "#FF8800"
+invalid_placement_color = "#FF4444"
+
+# Anchor points
+anchor_radius = 0.4
+anchor_color = "#00dadaff"     # Cyan neon
+anchor_emission = 3.0
+anchor_light_energy = 1.5
+anchor_light_range = 3.0
+
+# Cable
+cable_emission = 3.0
+cable_thickness = 0.12
+cable_sag = 3.0              # Maximum sag at cable midpoint
+
+# Riding
+attachment_distance = 2.0           # Auto-attach when within this distance of cable
+transfer_distance = 8.0             # Max distance for jump-transfer to highlighted zipline
+attach_transition_duration = 0.4    # Seconds to blend onto zipline when attaching/transferring
+anchor_hold_distance = 2.0          # Meters near anchors to allow holding still
+anchor_hold_offset = 1.0           # Meters away from anchors to hold the player
+gravity_slide_acceleration = 8.0    # m/s^2 acceleration when sliding downhill
+max_slide_speed = 15.0              # Maximum sliding velocity
+run_speed_multiplier = 1.6          # Speed multiplier when holding run on zipline
+climb_speed = 5.0                   # Base climbing speed
+climb_acceleration = 10.0           # How fast player reaches climb speed
+min_climb_efficiency = 0.2          # Minimum climb multiplier at steep slopes (0.0-1.0)
+detach_jump_force = 5.0             # Upward velocity when jumping off
+detach_cooldown = 2.0               # Seconds before can re-attach after detaching
+
+[decoy]
+range = 50.0                        # Maximum laser pointer range
+charge_time = 2.0                   # Seconds to hold to deploy decoy
+aim_tolerance = 1.5                 # Meters of drift allowed before charge resets
+dot_radius = 0.25                   # Radius of laser dot on surfaces
+dot_color = "#FF8020"               # Dark orange laser dot
+dot_emission = 8.0                  # Emission intensity

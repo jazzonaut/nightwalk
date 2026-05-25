@@ -1,0 +1,20 @@
+<Project Sdk="Godot.NET.Sdk/4.6.3">
+  <PropertyGroup>
+    <RootNamespace>Nightwalk.Godot</RootNamespace>
+    <AssemblyName>Nightwalk</AssemblyName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="src\Nightwalk.Core\Nightwalk.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="src\Nightwalk.Godot\**\*.cs" Exclude="src\Nightwalk.Godot\.godot\**" />
+  </ItemGroup>
+</Project>

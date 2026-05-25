@@ -1,0 +1,269 @@
+# Core game configuration
+
+[debug]
+show_fps = true
+logging_enabled = true
+logging_categories = []  # Empty = all categories; or specify e.g. ["Chunk", "Audio"]
+
+[graphics]
+# Display
+window_mode = "Windowed"  # Windowed, Borderless, Fullscreen
+resolution = "Default"    # "Default" for desktop resolution, or "1920x1080" format
+vsync = true
+
+# 3D Resolution Scaling
+upscaling_mode = "Fsr2"   # Bilinear, Fsr1, Fsr2 (FSR 2.2 includes temporal AA)
+render_scale = 0.85            # 1.0 = native, 0.75 = 75%, 0.5 = 50%
+fsr_sharpness = 0.2           # 0.0 = sharpest, 2.0 = softest (only for FSR modes)
+
+# Variable Rate Shading
+vrs_mode = "Disabled"         # Disabled, Texture, Xr (reduces shading in less detailed areas)
+
+# Anti-aliasing
+msaa = 4        # 0=off, 2=2x, 4=4x, 8=8x
+fxaa = true     # Fast approximate AA (screen-space)
+taa = false     # Temporal AA (can cause ghosting with fast movement, ignored with FSR 2.2)
+
+# Background - fallback color if sky disabled
+background_color = "#030812"
+
+# Sky gradient - dramatic cyberpunk night
+sky_enabled = true
+sky_top_color = "#0A1025"
+sky_horizon_color = "#281838"
+sky_ground_color = "#050508"
+sky_ground_horizon_color = "#593f80ff"
+sky_curve = 0.5
+sky_energy = 1.2
+sky_ground_energy = 0.5
+
+# Ambient lighting - dark blue noir tint
+ambient_color = "#1A2535"
+ambient_energy = 0.4
+
+# Standard fog - blue tinted for depth
+fog_enabled = true
+fog_density = 0.004
+fog_color = "#1A2545"
+fog_aerial_perspective = 0.8
+
+# Height fog - creates light pollution glow at horizon level
+fog_height_enabled = true
+fog_height = 50.0               # Height where fog density peaks
+fog_height_density = 0.0      # Additional fog density at ground level
+fog_height_color = "#e99898ff"  # Warm orange for light pollution effect
+fog_sun_scatter = 0.1           # Sun scattering amount for warm glow
+fog_height_color_blend = 0.1    # Blend factor between base fog color and height color (0-1)
+
+# Volumetric fog
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.007
+volumetric_fog_length = 150.0
+volumetric_fog_anisotropy = 0.3
+volumetric_fog_albedo = "#C8D0E8"
+volumetric_fog_emission = "#1A1835"
+volumetric_fog_emission_energy = 0.7
+volumetric_fog_gi_inject = 1.0              # How much GI light is injected into fog (0-1)
+volumetric_fog_ambient_inject = 2.0         # How much ambient light affects fog (0-1)
+volumetric_fog_sky_affect = 1.0             # How much sky affects fog color (0-1)
+volumetric_fog_temporal_reprojection_enabled = true   # Reduces noise/flickering
+volumetric_fog_temporal_reprojection_amount = 0.9     # Higher = smoother but more ghosting (0-1)
+
+# Bloom/Glow - noir: stronger glow from fewer key lights
+bloom_enabled = true
+bloom_intensity = 1.5
+bloom_strength = 1.5
+bloom_bloom = 0.5
+bloom_threshold = 0.6
+bloom_hdr_scale = 1.5
+bloom_hdr_luminance_cap = 12.0
+
+# Tonemapping - noir: lower exposure for darker feel
+tonemap_exposure = 0.8
+tonemap_white = 8.0
+
+vignette_intensity = 0.7
+
+# SSAO (Screen-Space Ambient Occlusion) - noir: deeper shadows
+ssao_enabled = false
+ssao_radius = 4.0
+ssao_intensity = 6.0
+ssao_power = 2.0
+ssao_detail = 0.5
+ssao_horizon = 0.1
+ssao_sharpness = 0.98
+ssao_light_affect = 0.0
+
+# Screen-Space Reflections - for wet surface reflections
+ssr_enabled = true
+ssr_max_steps = 128
+ssr_fade_in = 0.0
+ssr_fade_out = 3.0
+ssr_depth_tolerance = 1.0
+
+# SSIL (Screen-Space Indirect Lighting) - subtle bounced lighting
+ssil_enabled = false
+ssil_radius = 5.0           # Distance bounced light travels
+ssil_intensity = 1.0        # Brightness multiplier
+ssil_sharpness = 0.98       # Edge blur tolerance (higher = sharper)
+ssil_normal_rejection = 1.0 # Prevents light leaking from occluded surfaces
+
+# Depth of Field - cinematic focus blur
+dof_enabled = false
+dof_far_distance = 80.0     # Distance where far blur begins
+dof_far_transition = 30.0   # Falloff zone width for far blur
+dof_near_distance = 2.0     # Distance where near blur begins
+dof_near_transition = 1.0   # Falloff zone width for near blur
+dof_amount = 0.03           # Blur strength (0.0-1.0)
+
+# Auto-Exposure - camera adapts to lighting conditions
+auto_exposure_enabled = false
+auto_exposure_scale = 0.15           # Overall brightness multiplier
+auto_exposure_min_sensitivity = 100 # ISO equivalent for bright scenes (lower = darker)
+auto_exposure_max_sensitivity = 1600 # ISO equivalent for dark scenes (higher = brighter)
+auto_exposure_speed = 0.5           # Adaptation speed (seconds)
+
+# Post-processing: Color Grading - noir/cyberpunk tonal look
+color_grading_enabled = true
+color_grading_shadow_tint = "#D9E6FF"
+color_grading_highlight_tint = "#FFE8D9"
+color_grading_strength = 0.25
+color_grading_contrast = 1.05
+color_grading_saturation = 1.08
+
+# Post-processing: Vignette - subtle edge darkening
+vignette_enabled = false
+vignette_softness = 0.45
+vignette_color = "#000008"
+
+# Post-processing: Film Grain - barely visible noise
+film_grain_enabled = true
+film_grain_intensity = 0.06
+film_grain_speed = 2.5
+
+# Post-processing: Chromatic Aberration - mild lens effect
+chromatic_aberration_enabled = true
+chromatic_aberration_strength = 0.002
+chromatic_aberration_falloff = 1.2
+
+# Visual preset (0=Default, 1=Clean, 2=Blade Runner, etc.)
+visual_preset_index = 0
+
+[weather]
+# Rain particles - realistic streaks with wind
+rain_enabled = true
+rain_intensity = 2.0
+rain_particle_count = 10000
+rain_coverage_radius = 40.0
+rain_fall_speed = 10.0
+rain_spawn_height = 30.0
+rain_color = "#708098"
+rain_alpha = 0.06
+rain_drop_width = 0.006
+rain_drop_height = 0.4
+rain_spread_angle = 12.0
+rain_velocity_variation = 0.35
+
+# Rain splash particles - subtle ground-level bursts
+splash_enabled = false
+splash_particle_count = 600
+splash_lifetime = 0.05
+splash_velocity_min = 0.1
+splash_velocity_max = 0.25
+splash_spread_angle = 80.0
+splash_color = "#A0C0E0"
+splash_alpha = 0.15
+splash_size = 0.012
+splash_gravity = 40.0
+
+# Ground mist - volumetric fog at street level
+ground_mist_enabled = true
+ground_mist_particle_count = 400
+ground_mist_coverage_radius = 40.0
+ground_mist_height = 4.0
+ground_mist_color = "#7080A8"
+
+[sky_effects]
+enabled = true
+
+# Sky dome geometry
+dome_radius = 500.0
+dome_segments = 32
+
+# Aurora borealis - animated bands in the sky
+aurora_enabled = true
+aurora_primary_color = "#00FF88"
+aurora_secondary_color = "#FF00FF"
+aurora_intensity = 1.5
+aurora_speed = 0.10
+aurora_band_count = 4.0
+
+# Lightning - periodic sky flashes
+lightning_enabled = true
+lightning_frequency = 30.0
+lightning_duration = 0.8
+lightning_world_illumination = 1.5
+lightning_color = "#E6F2FF"
+lightning_volumetric_fog_energy = 2.0
+
+# Lightning multi-stroke behavior
+lightning_multi_stroke_chance = 0.9    # Chance of having more than one stroke (0-1)
+lightning_max_strokes = 3               # Maximum strokes per lightning event
+lightning_stroke_duration_min = 0.8     # Stroke duration multiplier range (of base duration)
+lightning_stroke_duration_max = 1.5
+lightning_first_stroke_intensity_min = 0.1   # First stroke intensity range (0-1)
+lightning_first_stroke_intensity_max = 1.0
+lightning_follow_up_intensity_min = 0.4      # Follow-up stroke intensity range (0-1)
+lightning_follow_up_intensity_max = 0.9
+lightning_stroke_gap_min = 0.05         # Gap between strokes in seconds
+lightning_stroke_gap_max = 1.0
+lightning_position_drift = 0.1          # How much position can drift between strokes
+lightning_interval_variation = 1.5      # Interval randomness (0.5 = 50-150%, 1.5 = 50-200%)
+
+# Electrical atmosphere - floating ember particles
+electrical_atmosphere_enabled = false
+ember_particle_count = 120
+ember_color = "#ff5e00ff"         # Color of floating embers (default: aurora green)
+ember_lifetime = 20.0            # How long each particle lives (seconds)
+ember_spawn_radius = 40.0       # Horizontal spawn area radius
+ember_spawn_height = 40.0       # Vertical spawn area height
+ember_velocity_min = 0.5        # Minimum upward drift speed
+ember_velocity_max = 5.0        # Maximum upward drift speed
+ember_spread = 30.0             # Angular spread of particle direction
+ember_gravity = 0.3             # Upward gravity (positive = floats up)
+ember_turbulence = 1.5          # Turbulence strength for organic movement
+ember_size_min = 0.3            # Minimum particle scale
+ember_size_max = 0.5            # Maximum particle scale
+ember_glow = 2.0                # Emission energy multiplier
+ember_min_spawn_height = 70.0   # Minimum world Y coordinate for ember spawning
+
+# Light pollution - warm/cool glow at horizon
+light_pollution_enabled = true
+light_pollution_intensity = 1.0
+light_pollution_warm_color = "#FF9933"
+light_pollution_cool_color = "#4DE6FF"
+light_pollution_height = 0.50       # 0.5 = horizon line
+light_pollution_fade_up = 0.12      # Fade distance above center (larger = softer edge)
+light_pollution_fade_down = 0.15    # Fade distance below center
+light_pollution_edge_noise = 0.03   # Noise amount to break up hard edge (0 = clean line)
+
+# Distant city silhouettes - masks the world edge
+silhouettes_enabled = true
+silhouette_inner_radius = 780.0
+silhouette_outer_radius = 1250.0
+silhouette_building_count = 1500
+silhouette_min_height = 20.0
+silhouette_max_height = 200.0
+silhouette_min_width = 15.0
+silhouette_max_width = 50.0
+silhouette_color = "#0A0A12"
+
+# Silhouette variation - creates natural skyline variety
+silhouette_inner_edge_height_boost = 1.5   # Max height multiplier at inner edge (1.0 = no boost)
+silhouette_tower_chance = 0.10             # Chance of tall tower (0.0-1.0)
+silhouette_tower_height_min = 1.4          # Tower height multiplier range
+silhouette_tower_height_max = 2.2
+silhouette_tower_width_mult = 0.6          # Tower width multiplier (thinner)
+silhouette_spire_chance = 0.02             # Chance of super-tall spire (0.0-1.0)
+silhouette_spire_height_mult = 1.8         # Spire height multiplier
+silhouette_spire_width_mult = 0.4          # Spire width multiplier (very thin)

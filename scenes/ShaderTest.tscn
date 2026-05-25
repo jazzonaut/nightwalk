@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://s1jkwoxw4jvn"]
+
+[ext_resource type="Shader" uid="uid://iu4jqsfdmcbr" path="res://shaders/window_lit.gdshader" id="1_ncpff"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_piusi"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8pxyg"]
+render_priority = 0
+shader = ExtResource("1_ncpff")
+shader_parameter/albedo = Color(0.35, 0.35, 0.38, 1)
+shader_parameter/roughness = 0.1
+shader_parameter/metallic = 0.9
+shader_parameter/emission_color = Color(1, 0.88, 0.69, 1)
+shader_parameter/emission_strength = 8.0
+shader_parameter/warm_color = Color(1, 0.88, 0.69, 1)
+shader_parameter/cool_color = Color(0.83, 0.91, 1, 1)
+shader_parameter/accent_magenta = Color(1, 0.53, 0.87, 1)
+shader_parameter/accent_cyan = Color(0.53, 1, 0.93, 1)
+shader_parameter/accent_chance = 0.03
+shader_parameter/curtain_chance = 0.25
+shader_parameter/blinds_half_chance = 0.15
+shader_parameter/blinds_closed_chance = 0.05
+
+[node name="MeshInstance3D" type="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.21326852, 0.22230637, 0.010833025)
+mesh = SubResource("CylinderMesh_piusi")
+surface_material_override/0 = SubResource("ShaderMaterial_8pxyg")

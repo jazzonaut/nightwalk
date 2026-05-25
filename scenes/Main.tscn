@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0123456789ab"]
+
+[ext_resource type="Script" path="res://src/Nightwalk.Godot/GameRoot.cs" id="1_gameroot"]
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_gameroot")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 50, 0)
+light_color = Color(0.314, 0.44, 0.627, 1)
+light_energy = 0.25
+light_volumetric_fog_energy = 1.0
+shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.0
+directional_shadow_mode = 2
+directional_shadow_max_distance = 200.0
+directional_shadow_fade_start = 0.8
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, -1, 0, -1, 0, 0, 0, 50, 0)
+light_color = Color(0.314, 0.44, 0.627, 1)
+light_energy = 0.15
+light_volumetric_fog_energy = 1.0
+shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.0
+directional_shadow_mode = 2
+directional_shadow_max_distance = 200.0
+directional_shadow_fade_start = 0.8

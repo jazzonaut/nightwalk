@@ -1,0 +1,39 @@
+# City aliveness system configuration
+# Animated car trails on roads near climbed buildings
+
+[car_trails]
+enabled = true
+adjacency_margin = 20.0          # Distance beyond building edge to detect adjacent roads
+
+# Lanes
+lanes_per_direction = 2          # Number of traffic lanes per direction
+
+# Animation
+scroll_speed = 10.0              # Base scrolling speed (units per second)
+scroll_speed_variation = 3.0     # Random speed variation between lanes
+
+# Visual
+streak_color = "#FFCC66"         # Warm headlights (cars going one direction)
+streak_color_oncoming = "#FF4444" # Red taillights (cars going opposite direction)
+emission_strength = 1.5          # Glow intensity multiplier
+trail_width = 0.02               # Width of trail (smaller = thinner)
+fuzziness = 0.5                  # Softness of trail edges (0 = sharp, 1 = very fuzzy)
+
+# Geometry
+height_offset = 0.08             # Height above road surface
+visibility_range = 150.0         # Max distance for car trail rendering
+visibility_margin = 20.0         # Fade margin for LOD
+
+# Enhanced Effects
+motion_blur_strength = 0.3       # Motion blur elongation (0 = off, 0.5-1.0 = subtle, 1.0+ = strong)
+bloom_boost = 0.0                # Extra bloom intensity (0 = default, 1-3 = enhanced glow)
+
+# Window silhouettes for climbed buildings
+# Dark overlays on existing lit windows showing cats, tech objects, industrial equipment
+[silhouettes]
+enabled = true
+density = 0.4                    # Fraction of lit windows with silhouettes (0-1)
+blur_radius = 0.05               # Soft edge blur
+opacity = 0.7                    # Silhouette darkness
+visibility_range = 80.0          # Fade out distance
+visibility_margin = 20.0         # Fade gradient

@@ -1,0 +1,401 @@
+# World generation configuration
+
+seed = 12345
+
+[chunks]
+size = 64.0
+load_radius = 8
+unload_radius = 12
+max_loads_per_tick = 4
+max_concurrent_loads = 2
+
+# Progressive rendering - spreads mesh construction across frames to eliminate stutters
+progressive_rendering_enabled = true
+render_budget_microseconds = 10000   # Time budget per frame (~3ms, leaves headroom for 60fps)
+max_concurrent_renders = 2          # Max chunks rendering simultaneously (lower = smoother)
+
+# Debug
+debug_show_boundaries = false
+
+[roads]
+major_spacing = 160.0
+minor_spacing = 48.0
+major_width = 21.0
+minor_width = 10.0
+sidewalk_width = 4.0
+road_height = 0.05
+sidewalk_height = 0.25
+curb_height = 0.20
+curb_width = 0.2
+
+[buildings]
+edge_margin = 1.5                 # Gap on non-road edges (creates 1m between adjacent buildings)
+
+# Heights
+min_height = 15.0
+max_height = 150.0
+
+# Fallback values (used when clusters.enabled = false)
+downtown_radius = 500.0
+downtown_height_multiplier = 2.0
+empty_plot_chance = 0.08
+two_building_chance = 0.4
+stepped_building_chance = 0.35
+stepped_setback_min = 0.15
+stepped_setback_max = 0.30
+stepped_asymmetric_chance = 0.3
+
+# Stepped building configuration
+stepped_min_height = 60.0
+stepped_min_sections = 2
+stepped_max_sections = 4
+stepped_section_min_height = 15.0
+
+# City cluster system - procedural multi-cluster downtown areas
+[buildings.clusters]
+enabled = true
+super_chunk_size = 2000.0
+average_clusters_per_super_chunk = 10
+minimum_spacing = 250.0
+pre_warm_radius = 5  # Super-chunks to pre-generate at startup (reduces distant exploration stalls)
+
+[buildings.clusters.origin]
+enabled = true
+radius = 500.0
+height_multiplier = 2.0
+falloff = "smoothstep"
+# Multipliers applied to base parameters for origin cluster aesthetics
+empty_plot_chance_multiplier = 1.0
+stepped_building_chance_multiplier = 1.0
+neon_density_multiplier = 1.0
+window_lit_percentage_multiplier = 1.0
+
+[buildings.clusters.generation]
+radius_min = 150.0
+radius_max = 500.0
+height_multiplier_min = 2.5
+height_multiplier_max = 3.0
+# Variation range applied to base values from [buildings], [neon], [windows]
+multiplier_min = 1.0
+multiplier_max = 1.0
+
+[buildings.clusters.generation.falloff_weights]
+linear = 1.0
+smoothstep = 2.0
+exponential = 1.5
+inverse_square = 0.5
+
+[facades]
+ground_floor_height = 1.25    # Height of ground floor (solid base before first windows)
+floor_height = 3.75
+window_width = 1.2
+window_height = 1.8
+window_spacing = 2.0
+ledge_depth = 0.3
+ledge_height = 0.15
+facade_inset = 0.15
+rooftop_feature_chance = 0.5
+
+[facade_weathering]
+enabled = true
+
+# Dirt/grime accumulation
+dirt_intensity = 0.5
+dirt_height_falloff = 0.9
+dirt_corner_intensity = 1.0
+dirt_color = "#050504"
+
+# Water damage streaks (vertical staining below windows/ledges)
+water_streak_intensity = 0.7
+water_streak_scale = 0.5
+water_streak_sparsity = 0.3         # 0.0 = very frequent, 1.0 = very sparse
+water_streak_strength = 0.8         # Mix strength when applying streaks
+water_stain_color = "#020201"
+
+# Rust stains (from metal fixtures like AC brackets)
+rust_intensity = 0.6
+rust_color = "#260D05"
+rust_drip_length = 2.0
+rust_chance = 0.35                  # Chance per ledge to have rust (0.0-1.0)
+rust_strength = 0.6                 # Mix strength when applying rust
+
+# Surface wear - adds coarse/rough patches to facade
+roughness_variation = 0.25
+worn_roughness_boost = 0.15
+
+# Noise texture settings
+noise_scale_large = 0.015
+noise_scale_detail = 0.03
+
+[facade_details]
+enabled = true
+
+# AC units mounted on facades
+ac_units_enabled = true
+ac_unit_chance = 0.15
+ac_unit_width = 0.8
+ac_unit_height = 0.6
+ac_unit_depth = 0.4
+ac_unit_min_floor = 2
+
+# Vertical pipes/conduits
+pipes_enabled = true
+pipe_chance = 0.8
+pipe_radius_min = 0.08
+pipe_radius_max = 0.14
+pipe_max_floors = 10
+
+# Material for detail geometry
+[facade_details.material]
+color = "#1A1A1A"
+roughness = 0.9
+metallic = 0.1
+
+[neon]
+# Noir: fewer but stronger neon lights for dramatic contrast
+placement_density = 0.25
+density_multiplier = 1.0  # Fallback when clusters disabled (clusters override per-building)
+intensity_min = 2.0
+intensity_max = 12.0
+color_palette = ["#00FFFF", "#FF00FF", "#8800FF", "#00AAFF", "#FF0088", "#AA00FF", "#0088FF", "#FF6600"]
+
+# Large signs (upper facade)
+large_sign_chance = 0.15
+large_sign_min_width = 6.0
+large_sign_max_width = 12.0
+large_sign_min_height = 2.0
+large_sign_max_height = 4.0
+large_sign_min_floor = 0.6
+
+# Vertical strips
+corner_strip_chance = 0.25
+corner_strip_width = 0.2
+full_height_strip_chance = 0.1
+full_height_strip_width = 0.15
+
+# Kanji signs and billboards
+kanji_sign_chance = 0.52
+kanji_sign_min_height = 15.0
+billboard_chance = 0.65
+billboard_min_height = 20.0
+
+# Light casting for broken signs (creates flickering light from sparks)
+neon_light_casting_enabled = true
+neon_light_range = 8.0
+neon_light_energy = 2.0
+
+# LOD settings - reduce detail at distance for performance
+lod_parallax_distance = 50.0   # Beyond this, parallax layers reduced to 1 (baked at render time)
+lod_light_distance = 50.0      # Broken sign lights start fading at this distance
+lod_light_fade_length = 20.0   # Distance over which lights fade out
+lod_small_element_visibility_range = 300.0  # Small neon elements hidden beyond this
+lod_small_element_visibility_margin = 50.0  # Fade distance for gradual transition
+
+[windows]
+# Noir: fewer but brighter lit windows
+lit_percentage = 0.15
+
+[windows.variation]
+# Floor clustering - creates visual variety per floor
+dark_floor_chance = 0.12
+fully_lit_floor_chance = 0.08
+checkerboard_floor_chance = 0.06
+
+# Color temperature - warm residential, cool office, rare accents
+warm_color = "#FFE0B0"
+cool_color = "#D4E8FF"
+accent_magenta = "#FF88DD"
+accent_cyan = "#88FFEE"
+accent_chance = 0.03
+
+# Curtains/blinds - shader-computed dimming
+curtain_chance = 0.25
+blinds_half_chance = 0.15
+blinds_closed_chance = 0.05
+
+[materials.ground]
+color = "#2A2A3A"
+roughness = 0.95
+metallic = 0.0
+
+[materials.road]
+color = "#454550"
+roughness = 0.75
+metallic = 0.0
+
+[materials.sidewalk]
+color = "#4A4A55"
+roughness = 0.75
+metallic = 0.0
+
+[materials.building]
+# Noir: darker building faces for silhouettes
+color = "#0E1018"
+roughness = 0.85
+metallic = 0.0
+
+[materials.building_dark]
+color = "#080C10"
+roughness = 0.9
+metallic = 0.0
+
+# Building color variants for visual variety
+[materials.building_blue]
+color = "#1A2535"
+roughness = 0.85
+metallic = 0.0
+
+[materials.building_purple]
+color = "#251E30"
+roughness = 0.85
+metallic = 0.0
+
+[materials.building_warm]
+color = "#282018"
+roughness = 0.88
+metallic = 0.0
+
+[materials.building_weathered]
+color = "#1C1C1C"
+roughness = 0.95
+metallic = 0.0
+
+[materials.window_unlit]
+# Noir: nearly black unlit windows
+color = "#020304"
+roughness = 0.4
+metallic = 0.0
+
+[materials.window_lit]
+color = "#FFE0B0"
+roughness = 0.1
+metallic = 0.0
+emission = "#FFE0B0"
+emission_strength = 2.0
+
+[materials.ledge]
+color = "#303048"
+roughness = 0.8
+metallic = 0.2
+
+[materials.road_marking]
+color = "#686860"
+roughness = 0.55
+metallic = 0.6
+
+[road_markings]
+enabled = true
+center_line_width = 0.24
+lane_line_width = 0.20
+dash_length = 2.5
+dash_gap = 5.0
+crosswalk_stripe_width = 0.4
+crosswalk_stripe_gap = 0.6
+crosswalk_stripe_count = 6
+crosswalk_chance = 0.35
+
+# LOD settings - hide road markings at distance
+lod_visibility_range = 130.0   # Road markings fade out beyond this distance
+lod_visibility_margin = 30.0   # Fade distance for gradual transition
+
+[wet_surface]
+# Base wetness effect
+wetness = 0.7
+wet_roughness = 0.4
+wet_darkening = 0.2
+
+# Asphalt texture variation
+texture_variation = 0.15
+texture_scale = 0.5
+
+# Puddle placement - noir: more puddles for reflections
+puddles_enabled = true
+puddle_scale = 0.03
+puddle_threshold = 0.35
+puddle_edge_softness = 0.3
+
+# Animated water ripples - very subtle, mostly static
+ripples_enabled = false
+ripple_speed = 0.15
+ripple_scale = 0.1
+ripple_strength = 0.04
+time_scale = 1.0
+
+# Wetness variation - subtle to avoid dry spots
+wetness_noise_scale = 0.26
+wetness_noise_strength = 0.4
+
+[street_lights]
+# Noir street-level light pools - creates dramatic ground lighting
+enabled = true
+spacing = 40.0              # One lamp per ~40 units along roads
+light_color = "#FFE8C0"     # Warm sodium lamp color
+light_energy = 4.0          # Strong local illumination
+light_range = 40.0          # Focused pool radius
+light_height = 10.0          # Street lamp height
+omni_attenuation = 1.5      # Quick falloff for tight pools
+shadow_enabled = false      # Disabled for performance
+max_per_chunk = 6           # Cap lights per chunk
+
+# LOD settings - lights fade out at distance for performance
+lod_light_distance = 200.0   # Street lamp lights start fading at this distance
+lod_light_fade_length = 50.0 # Distance over which lights fade out
+
+[manholes]
+enabled = true
+min_per_chunk = 0
+max_per_chunk = 2
+cover_diameter = 1.5
+cover_depth = 0.02              # Slightly raised from road surface
+pattern = "grid"                # Options: grid, concentric_rings, radial_lines
+
+# Pattern geometry
+grid_bar_width = 0.01           # Width of grid bars
+grid_spacing = 0.15             # Grid spacing as fraction of radius
+rim_width = 0.1                # Outer rim width
+ridge_height = 0.012            # Height of raised ridges
+
+# Material
+material_color = "#3A3A42"
+material_roughness = 0.5
+material_metallic = 3
+
+# Smoke
+smoke_enabled = true
+smoke_chance = 1.0
+
+[smoke]
+albedo_color = "#C0C8D0"
+
+# Particles
+particle_count = 150
+lifetime = 20.0
+particle_size = 3.5
+scale_min = 1.0
+scale_max = 1.3
+
+# Emitter size variation
+emitter_scale_min = 0.4
+emitter_scale_max = 1.2
+
+# Movement
+velocity_min = 1.5
+velocity_max = 1.9
+spread = 8.0
+gravity = 0.24
+
+# Turbulence
+turbulence_strength = 0.6
+turbulence_scale = 3.0
+
+# LOD
+fade_distance_min = 80.0
+fade_distance_max = 120.0
+
+[occlusion_culling]
+# Occlusion culling uses building geometry to skip rendering objects hidden behind them
+enabled = true
+min_building_height = 10.0          # Buildings shorter than this won't create occluders
+min_footprint_area = 50.0           # Buildings with smaller footprint won't create occluders
+occluder_margin = 0.5               # Shrink occluder boxes to avoid edge artifacts
+include_rooftop_features = true     # Include rooftop structures as occluders

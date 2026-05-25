@@ -1,0 +1,85 @@
+# Audio configuration
+
+[music]
+enabled = true
+master_volume = 0.05          # 0.0 to 1.0
+crossfade_duration = 2.0     # Seconds for track transitions
+loop_enabled = true
+
+# Track definitions - add tracks as you generate them
+[[music.tracks]]
+id = "neon_rooftop_drift_01"
+path = "res://assets/audio/music/neon_rooftop_drift_01.mp3"
+category = "ambient"
+base_volume = 1.0
+
+[[music.tracks]]
+id = "neon_rooftop_drift_02"
+path = "res://assets/audio/music/neon_rooftop_drift_02.mp3"
+category = "ambient"
+base_volume = 1.0
+
+[[music.tracks]]
+id = "neon_rooftop_drift_03"
+path = "res://assets/audio/music/neon_rooftop_drift_03.mp3"
+category = "ambient"
+base_volume = 1.0
+
+[sfx]
+enabled = true
+master_volume = 1.0
+
+[sfx.player]
+footstep_interval = 0.35     # Seconds between footstep sounds
+run_pitch_multiplier = 1.15  # Pitch increase when running
+
+[sfx.environment]
+rain_crossfade_duration = 1.5  # Seconds to crossfade between rain intensities
+city_ambient_volume = 0.3      # Background city hum volume
+
+# Sound effect definitions - add sounds as you generate them
+# Player sounds
+# [[sfx.sounds]]
+# id = "footstep_walk"
+# path = "res://assets/audio/sfx/player/footstep_walk.ogg"
+# category = "player"
+# volume = 0.7
+# loop = true
+
+# [[sfx.sounds]]
+# id = "jump"
+# path = "res://assets/audio/sfx/player/jump.ogg"
+# category = "player"
+# volume = 0.8
+# loop = false
+
+# Movement sounds
+# [[sfx.sounds]]
+# id = "jetpack_activate"
+# path = "res://assets/audio/sfx/movement/jetpack_activate.ogg"
+# category = "movement"
+# volume = 0.9
+# loop = false
+
+# [[sfx.sounds]]
+# id = "jetpack_loop"
+# path = "res://assets/audio/sfx/movement/jetpack_loop.ogg"
+# category = "movement"
+# volume = 0.7
+# loop = true
+
+# Environment sounds
+# [[sfx.sounds]]
+# id = "rain_light"
+# path = "res://assets/audio/sfx/environment/rain_light.ogg"
+# category = "environment"
+# volume = 0.5
+# loop = true
+
+# UI sounds
+# [[sfx.sounds]]
+# id = "preset_switch"
+# path = "res://assets/audio/sfx/ui/preset_switch.ogg"
+# category = "ui"
+# volume = 0.6
+# loop = false
