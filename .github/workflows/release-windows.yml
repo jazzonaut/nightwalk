@@ -72,8 +72,17 @@ jobs:
           godot --version
           Write-Host "dotnet --version:"
           dotnet --version
-          Write-Host "Project root:"
-          Get-ChildItem -Force | Select-Object Mode, Name
+          Write-Host "===== dotnet --list-runtimes ====="
+          dotnet --list-runtimes
+          Write-Host "===== dotnet --list-sdks ====="
+          dotnet --list-sdks
+          Write-Host "===== Microsoft.NETCore.App shared dirs ====="
+          $sharedRoot = "C:\Program Files\dotnet\shared\Microsoft.NETCore.App"
+          if (Test-Path $sharedRoot) {
+            Get-ChildItem $sharedRoot | Format-Table Name | Out-Host
+          } else {
+            Write-Host "(no $sharedRoot directory)"
+          }
 
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
