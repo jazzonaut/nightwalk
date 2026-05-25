@@ -60,16 +60,47 @@ jobs:
           $content | Set-Content export_presets.cfg
           Write-Host "Updated export_presets.cfg with version $v"
 
+      - name: Toolchain diagnostics
+        shell: pwsh
+        run: |
+          Write-Host "Working directory: $(Get-Location)"
+          $godot = Get-Command godot -ErrorAction SilentlyContinue
+          if ($godot) { Write-Host "godot resolves to: $($godot.Source)" } else { Write-Host "godot NOT FOUND ON PATH" }
+          $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
+          if ($dotnet) { Write-Host "dotnet resolves to: $($dotnet.Source)" } else { Write-Host "dotnet NOT FOUND ON PATH" }
+          Write-Host "godot --version:"
+          godot --version
+          Write-Host "dotnet --version:"
+          dotnet --version
+          Write-Host "Project root:"
+          Get-ChildItem -Force | Select-Object Mode, Name
+
+      - name: Restore .NET dependencies
+        run: dotnet restore Nightwalk.csproj
+
+      - name: Build Godot C# solution
+        shell: pwsh
+        run: |
+          # Required for C# projects before --import / --export will work.
+          # Per chickensoft-games/setup-godot README — non-zero exit is tolerated.
+          $ErrorActionPreference = 'Continue'
+          godot --headless --build-solutions --quit 2>&1 | Tee-Object -FilePath build-solutions.log
+          Write-Host "build-solutions exit code: $LASTEXITCODE"
+
       - name: Godot headless import pass
         shell: pwsh
         run: |
-          # First-run import builds the .godot/ cache. Godot can exit non-zero
-          # on a fresh import even when it succeeds, so don't fail on exit code —
-          # verify the cache directory was produced instead.
           $ErrorActionPreference = 'Continue'
-          godot --headless --import
+          godot --headless --import 2>&1 | Tee-Object -FilePath import.log
+          Write-Host "Import exit code: $LASTEXITCODE"
+          Write-Host "Post-import directory listing:"
+          Get-ChildItem -Force | Select-Object Mode, Name
           if (-not (Test-Path .godot)) {
-            Write-Error "Godot --import did not produce a .godot/ cache directory"
+            Write-Host "===== import.log ====="
+            Get-Content import.log
+            Write-Host "===== build-solutions.log ====="
+            Get-Content build-solutions.log -ErrorAction SilentlyContinue
+            Write-Error ".godot/ cache directory was not produced — see logs above"
             exit 1
           }
 
