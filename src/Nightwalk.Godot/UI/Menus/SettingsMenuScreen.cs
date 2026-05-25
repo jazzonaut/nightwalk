@@ -191,26 +191,98 @@ public sealed partial class SettingsMenuScreen : UIScreen
             _valueUpdaters[key] = updateValue;
         }
 
-        // Add controls hint for Controls tab
+        // Wrap settings + (optional) controls reference so we control their
+        // spacing independently of the inter-row separation inside `container`.
+        var contentColumn = new VBoxContainer();
+        contentColumn.AddThemeConstantOverride("separation", UITheme.MediumPadding);
+        contentColumn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        contentColumn.AddChild(container);
+
         if (category == SettingsCategory.Controls)
         {
-            var hintLabel = new Label
-            {
-                Text = "WASD - Move | Space - Jump/Jetpack | Shift - Sprint | E - Interact\n" +
-                       "TAB - Toggle Flight | Q - Bird's Eye View | Scroll - Cycle Tools/Zoom\n" +
-                       "Left Click - Place/Rotate Prism/Zipline | Right Click - Remove Prism/Zipline\n" +
-                       "1-9 - Change Visual Preset\n" +
-                       "N - Screensaver",
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            UITheme.ApplyLabelStyle(hintLabel, UITheme.SmallFontSize, UITheme.TextDimColor);
-            container.AddChild(hintLabel);
+            contentColumn.AddChild(BuildControlsReference());
         }
 
-        innerMargin.AddChild(container);
+        innerMargin.AddChild(contentColumn);
         scrollContainer.AddChild(innerMargin);
         margin.AddChild(scrollContainer);
         return margin;
+    }
+
+    private static Control BuildControlsReference()
+    {
+        var grid = new GridContainer { Columns = 2 };
+        grid.AddThemeConstantOverride("h_separation", UITheme.LargePadding);
+        grid.AddThemeConstantOverride("v_separation", UITheme.MediumPadding);
+        grid.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+
+        var sections = new (string Heading, (string Key, string Action)[] Bindings)[]
+        {
+            ("Movement", new[]
+            {
+                ("WASD", "Move"),
+                ("Space", "Jump / Jetpack"),
+                ("Shift", "Sprint"),
+                ("E", "Interact"),
+            }),
+            ("View", new[]
+            {
+                ("Tab", "Toggle flight"),
+                ("Q", "Bird's-eye view"),
+                ("Scroll", "Cycle tools / zoom"),
+            }),
+            ("Building", new[]
+            {
+                ("Left Click", "Place / rotate prism or zipline"),
+                ("Right Click", "Remove prism or zipline"),
+            }),
+            ("Other", new[]
+            {
+                ("1 - 9", "Change visual preset"),
+                ("N", "Screensaver"),
+            }),
+        };
+
+        foreach (var (heading, bindings) in sections)
+        {
+            grid.AddChild(BuildControlsSection(heading, bindings));
+        }
+
+        return grid;
+    }
+
+    private static Control BuildControlsSection(string heading, (string Key, string Action)[] bindings)
+    {
+        var section = new VBoxContainer();
+        section.AddThemeConstantOverride("separation", UITheme.SmallPadding);
+        section.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+
+        var headingLabel = new Label { Text = heading };
+        UITheme.ApplyLabelStyle(headingLabel, UITheme.BodyFontSize, UITheme.AccentColor);
+        section.AddChild(headingLabel);
+
+        var bindingsGrid = new GridContainer { Columns = 2 };
+        bindingsGrid.AddThemeConstantOverride("h_separation", UITheme.MediumPadding);
+        bindingsGrid.AddThemeConstantOverride("v_separation", UITheme.SmallPadding / 2);
+
+        foreach (var (key, action) in bindings)
+        {
+            var keyLabel = new Label
+            {
+                Text = key,
+                CustomMinimumSize = new Vector2(110, 0),
+            };
+            UITheme.ApplyLabelStyle(keyLabel, UITheme.SmallFontSize, UITheme.TextColor);
+
+            var actionLabel = new Label { Text = action };
+            UITheme.ApplyLabelStyle(actionLabel, UITheme.SmallFontSize, UITheme.TextDimColor);
+
+            bindingsGrid.AddChild(keyLabel);
+            bindingsGrid.AddChild(actionLabel);
+        }
+
+        section.AddChild(bindingsGrid);
+        return section;
     }
 
     private void HandleSettingChanged(SettingMetadata setting, object? newValue)

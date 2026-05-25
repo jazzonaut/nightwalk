@@ -2,7 +2,7 @@
 
 [music]
 enabled = true
-master_volume = 0.05          # 0.0 to 1.0
+master_volume = 0.3          # 0.0 to 1.0
 crossfade_duration = 2.0     # Seconds for track transitions
 loop_enabled = true
 

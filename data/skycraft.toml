@@ -37,7 +37,7 @@ altitude_min = 110.0
 altitude_max = 180.0
 speed = 18.0
 acceleration = 6.0
-landing_chance = 0.4
+landing_chance = 5.0
 accent_color = "#FFB060"           # Warm amber
 base_scale = 1.0
 
@@ -47,7 +47,7 @@ altitude_min = 7.0
 altitude_max = 20.0
 speed = 10.0
 acceleration = 5.0
-landing_chance = 0.75
+landing_chance = 1.5
 accent_color = "#FF60C0"           # Magenta
 base_scale = 1.0
 
