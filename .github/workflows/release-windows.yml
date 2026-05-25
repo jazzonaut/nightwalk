@@ -108,21 +108,32 @@ jobs:
           $ErrorActionPreference = 'Continue'
           New-Item -ItemType Directory -Force -Path bin | Out-Null
 
+          Write-Host "===== Pre-export sanity ====="
+          Write-Host "PWD: $(Get-Location)"
+          Write-Host "project.godot present: $(Test-Path project.godot)"
+          $resolved = (Get-Command godot -ErrorAction SilentlyContinue).Source
+          Write-Host "godot resolves to: $resolved"
+
           Write-Host "===== Export templates check ====="
           $templatesRoot = "$env:APPDATA\Godot\export_templates"
           if (Test-Path $templatesRoot) {
-            Get-ChildItem $templatesRoot -Recurse -Depth 1 | Select-Object Mode, Name
+            Get-ChildItem $templatesRoot -Recurse -Depth 1 | Format-Table Mode, Name | Out-Host
           } else {
             Write-Host "(no $templatesRoot directory)"
           }
 
           Write-Host "===== Running godot export ====="
-          godot --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
-          Write-Host "Export exit code: $LASTEXITCODE"
+          # Use --% stop-parsing token: PowerShell otherwise mangles the
+          # "Windows Desktop" preset name (arg containing a space) when
+          # combined with an extension-less native binary, and silently drops
+          # the call with no output and no exit code set.
+          godot --% --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
+          $exitCode = $LASTEXITCODE
+          Write-Host "===== Export exit code: $exitCode ====="
 
           Write-Host "===== bin/ contents after export ====="
           if (Test-Path bin) {
-            Get-ChildItem bin -Recurse | Select-Object Mode, Length, Name
+            Get-ChildItem bin -Recurse | Format-Table Mode, Length, Name | Out-Host
           } else {
             Write-Host "(bin/ does not exist)"
           }
