@@ -83,24 +83,22 @@ jobs:
         run: |
           # Required for C# projects before --import / --export will work.
           # Per chickensoft-games/setup-godot README — non-zero exit is tolerated.
+          # No pipeline redirection: godot is exposed as an extension-less
+          # binary which PowerShell refuses to run inside a pipeline.
           $ErrorActionPreference = 'Continue'
-          godot --headless --build-solutions --quit 2>&1 | Tee-Object -FilePath build-solutions.log
+          godot --headless --build-solutions --quit
           Write-Host "build-solutions exit code: $LASTEXITCODE"
 
       - name: Godot headless import pass
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Continue'
-          godot --headless --import 2>&1 | Tee-Object -FilePath import.log
+          godot --headless --import
           Write-Host "Import exit code: $LASTEXITCODE"
           Write-Host "Post-import directory listing:"
           Get-ChildItem -Force | Select-Object Mode, Name
           if (-not (Test-Path .godot)) {
-            Write-Host "===== import.log ====="
-            Get-Content import.log
-            Write-Host "===== build-solutions.log ====="
-            Get-Content build-solutions.log -ErrorAction SilentlyContinue
-            Write-Error ".godot/ cache directory was not produced — see logs above"
+            Write-Error ".godot/ cache directory was not produced"
             exit 1
           }
 
@@ -119,7 +117,7 @@ jobs:
           }
 
           Write-Host "===== Running godot export ====="
-          godot --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe 2>&1 | Tee-Object -FilePath export.log
+          godot --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
           Write-Host "Export exit code: $LASTEXITCODE"
 
           Write-Host "===== bin/ contents after export ====="
@@ -130,9 +128,7 @@ jobs:
           }
 
           if (-not (Test-Path bin/Nightwalk.exe)) {
-            Write-Host "===== export.log (last 300 lines) ====="
-            Get-Content export.log -Tail 300
-            Write-Error "Export produced no exe — see log above"
+            Write-Error "Export produced no exe — see godot output above"
             exit 1
           }
 
