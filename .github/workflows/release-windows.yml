@@ -133,20 +133,14 @@ jobs:
             Write-Host "(no $templatesRoot directory)"
           }
 
-          Write-Host "===== Built assemblies search ====="
-          $dlls = Get-ChildItem -Path . -Filter "Nightwalk.dll" -Recurse -ErrorAction SilentlyContinue
-          if ($dlls) {
-            $dlls | Select-Object FullName, Length, LastWriteTime | Format-Table | Out-Host
+          Write-Host "===== ExportRelease dir (flat) ====="
+          $exportDir = ".godot/mono/temp/bin/ExportRelease"
+          if (Test-Path $exportDir) {
+            Get-ChildItem $exportDir -File | Sort-Object Name | Format-Table Name, Length | Out-Host
+            Write-Host "Subdirs:"
+            Get-ChildItem $exportDir -Directory | Format-Table Name | Out-Host
           } else {
-            Write-Host "NO Nightwalk.dll found anywhere in workspace — build step did not produce an assembly"
-          }
-          Write-Host ".godot/ tree (depth 3):"
-          if (Test-Path .godot) {
-            Get-ChildItem .godot -Recurse -Depth 3 -Force -ErrorAction SilentlyContinue |
-              Where-Object { -not $_.PSIsContainer -or $_.FullName.Split([IO.Path]::DirectorySeparatorChar).Count -lt 6 } |
-              Format-Table Mode, Length, Name | Out-Host
-          } else {
-            Write-Host "(no .godot/ directory)"
+            Write-Host "(no $exportDir directory)"
           }
 
           # The chickensoft-games/setup-godot action exposes 'godot' as an
