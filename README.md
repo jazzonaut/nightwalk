@@ -2,7 +2,7 @@
 
 A first-person cyberpunk rooftop-exploration game set in an endless procedurally generated night city. Single-player. Built solo in [Godot 4.6](https://godotengine.org/) with C# (.NET 8).
 
-![Nightwalk screenshot](docs/media/screenshot.png)
+![Nightwalk screenshot](docs/media/screenshot01.jpg)
 
 > Hobby project, still evolving. Expect rough edges and missing content. Bug reports welcome via [Issues](https://github.com/jazzonaut/nightwalk/issues).
 

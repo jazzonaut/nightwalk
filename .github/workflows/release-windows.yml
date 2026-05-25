@@ -197,7 +197,7 @@ jobs:
           $stage = "stage/Nightwalk-$v-windows"
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
           Copy-Item bin/* -Destination $stage -Recurse
-          Copy-Item LICENSE, CREDITS.md, README.md -Destination $stage
+          Copy-Item LICENSE, README.md -Destination $stage
           Compress-Archive -Path $stage -DestinationPath "Nightwalk-$v-windows.zip"
           Write-Host "Zip contents:"
           (Get-Item "Nightwalk-$v-windows.zip").Length

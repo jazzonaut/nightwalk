@@ -21,12 +21,12 @@ Releases are cut manually via GitHub Actions.
 - Sets up Godot 4.6.3 (.NET edition) + .NET 8 SDK on a `windows-latest` runner.
 - Injects the version into `export_presets.cfg` (file_version + product_version).
 - Runs `godot --headless --import`, then `godot --headless --export-release "Windows Desktop"`.
-- Bundles `bin/` output + `LICENSE` + `CREDITS.md` + `README.md` into `Nightwalk-<version>-windows.zip`.
+- Bundles `bin/` output + `LICENSE` + `README.md` into `Nightwalk-<version>-windows.zip`.
 - Tags `v<version>` on the workflow's commit and creates a GitHub Release with the zip attached.
 
 ## License obligation
 
-This project is GPL-3.0. The release zip includes the `LICENSE` file — keep it included if you ever build outside of CI. See [CREDITS.md](CREDITS.md) for the music caveat.
+This project is GPL-3.0. The release zip includes the `LICENSE` file — keep it included if you ever build outside of CI.
 
 ## Troubleshooting
 
