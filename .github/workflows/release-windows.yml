@@ -123,10 +123,11 @@ jobs:
           }
 
           # The chickensoft-games/setup-godot action exposes 'godot' as an
-          # extension-less hardlink. PowerShell can invoke it for simple
-          # commands but silently drops the call when an arg with a space
-          # ("Windows Desktop") is passed. Copy the binary to a path that
-          # ends in .exe so PowerShell treats it as a normal executable.
+          # extension-less hardlink. PowerShell silently drops invocations
+          # of that alias when a space-containing arg is involved. Create
+          # an .exe sibling next to the alias (same directory) so godot
+          # still finds GodotSharp/ relative to its own location, while
+          # giving PowerShell a sane extension to invoke.
           Write-Host "===== Preparing godot.exe ====="
           $godotAlias = (Get-Command godot -ErrorAction SilentlyContinue).Source
           if (-not $godotAlias -or -not (Test-Path $godotAlias)) {
@@ -134,10 +135,18 @@ jobs:
             exit 1
           }
           Write-Host "Alias source: $godotAlias"
-          $godotExe = Join-Path $env:RUNNER_TEMP "godot.exe"
-          Copy-Item -Path $godotAlias -Destination $godotExe -Force
-          $copiedSize = (Get-Item $godotExe).Length
-          Write-Host "Copied to: $godotExe ($copiedSize bytes)"
+          $godotExe = "$godotAlias.exe"
+          if (-not (Test-Path $godotExe)) {
+            # Same-volume hardlink: instant, zero copy
+            $null = New-Item -ItemType HardLink -Path $godotExe -Value $godotAlias -ErrorAction SilentlyContinue
+            if (-not (Test-Path $godotExe)) {
+              # Hardlink can fail if filesystem doesn't support it; fall back to copy
+              Copy-Item -Path $godotAlias -Destination $godotExe -Force
+            }
+          }
+          Write-Host "godot.exe: $godotExe"
+          $sharpDir = Join-Path (Split-Path $godotAlias -Parent) "GodotSharp"
+          Write-Host "GodotSharp dir: $sharpDir (exists: $(Test-Path $sharpDir))"
 
           Write-Host "===== Running godot export ====="
           & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
