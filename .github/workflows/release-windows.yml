@@ -91,13 +91,26 @@ jobs:
             exit 1
           }
 
-      - name: Build C# project (ExportRelease)
+      - name: Publish C# project (ExportRelease)
         shell: pwsh
         run: |
-          dotnet build Nightwalk.csproj -c ExportRelease --no-restore
-          Write-Host "===== Searching for Nightwalk.dll ====="
+          # `dotnet build` only produces Nightwalk.dll. The Godot export
+          # needs a full publish output — runtimeconfig.json + transitive
+          # dependency dlls — so godot's mono runtime can hostfxr-load it.
+          dotnet publish Nightwalk.csproj -c ExportRelease --no-restore
+          Write-Host "===== Publish output search ====="
           Get-ChildItem -Path . -Filter "Nightwalk.dll" -Recurse -ErrorAction SilentlyContinue |
             Select-Object FullName, Length, LastWriteTime | Format-Table | Out-Host
+          Write-Host "===== runtimeconfig search ====="
+          Get-ChildItem -Path . -Filter "*.runtimeconfig.json" -Recurse -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length | Format-Table | Out-Host
+          Write-Host "===== ExportRelease dir contents ====="
+          $exportDir = ".godot/mono/temp/bin/ExportRelease"
+          if (Test-Path $exportDir) {
+            Get-ChildItem $exportDir -Recurse | Format-Table Name, Length | Out-Host
+          } else {
+            Write-Host "(no $exportDir)"
+          }
 
       - name: Export Windows build
         shell: pwsh
