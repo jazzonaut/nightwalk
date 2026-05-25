@@ -18,7 +18,7 @@ Nine TOML files in `data/`, parsed via `Tomlyn`, with user-preferences overlay a
 | `data/aliveness.toml` | `AlivenessConfig` | Car trails, window silhouettes |
 | `data/resonance.toml` | `ResonanceConfig` | Mode default, alert, exposure, warden, seeker, counterplay, repel |
 
-> Correction from README: README §1.1 says "8 files" — actual count is 9. `resonance.toml` is the missed file. See [FINDINGS.md](../../FINDINGS.md).
+> Correction from README: an earlier README said "8 files" — actual count is 9. `resonance.toml` is the missed file.
 
 ## User overlay
 

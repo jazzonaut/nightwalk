@@ -2,7 +2,7 @@
 
 Player camera modes. Three first-class `ViewMode` values plus three overlay controllers that temporarily take over the camera.
 
-> **Engineering decisions:** none specific. The taxonomy correction (overlays vs enum values) is in [CONTEXT.md](../../CONTEXT.md) and [FINDINGS.md](../../FINDINGS.md). View modes are a thin state machine over the `ViewMode` enum.
+> **Engineering decisions:** none specific. The taxonomy (overlays vs enum values) is documented in [CONTEXT.md](../../CONTEXT.md). View modes are a thin state machine over the `ViewMode` enum.
 
 ## Taxonomy correction
 

@@ -1,0 +1,32 @@
+name: Feature / change request
+description: Suggest a new feature, content change, or behavior tweak.
+labels: ["needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the player experience or developer pain that motivates this.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What would you change? Be specific — vague suggestions are unactionable.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you ruled out and why.
+    validations:
+      required: false
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: ADR compatibility
+      description: Significant changes should be compatible with the project's [architecture decision records](https://github.com/jazzonaut/nightwalk/tree/main/docs/adr).
+      options:
+        - label: I've skimmed the ADR index and this proposal doesn't obviously contradict any ADR (or it does, and I've called that out in the proposal above).

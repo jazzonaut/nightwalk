@@ -4,7 +4,7 @@ A game mode that layers tension and stealth on the base loop. Collecting raises 
 
 > **Engineering decisions:** [ADR-0008 — pluggable game-mode framework](../adr/0008-game-mode-framework.md). The Resonance loop *itself* is gameplay design, not an engineering decision per se — most of this doc is reference.
 >
-> **Note:** README does **not** mention Resonance at all — the README pre-dates this subsystem. The vocabulary lives in [CONTEXT.md](../../CONTEXT.md); historical gaps are tracked in [FINDINGS.md](../../FINDINGS.md).
+> **Note:** the vocabulary for Resonance lives in [CONTEXT.md](../../CONTEXT.md).
 
 ## Player-facing summary
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/jazzonaut/nightwalk/tree/main/docs
+    about: Architecture decision records, system reference, conventions.
+  - name: CONTEXT.md (domain glossary)
+    url: https://github.com/jazzonaut/nightwalk/blob/main/CONTEXT.md
+    about: Read this before filing about gameplay terms (Beacon, Prism, Resonance, etc.).

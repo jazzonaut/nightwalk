@@ -86,4 +86,4 @@ The states live on the Godot side because they call into Godot for cursor mode a
 **Related:**
 - [ADR-0003](0003-manual-di-no-autoloads.md) — `GameStateManager` is constructed last in `GameRoot._Ready()`, after every subsystem it might gate.
 - [ADR-0004](0004-event-bus.md) — `GameStateChangedEvent` is the broadcast mechanism for state-change reactions.
-- The Resonance game mode (separate concern; see `CONTEXT.md` and `FINDINGS.md`) is *not* a game state — it lives in `GameModeManager`. The two state machines are orthogonal: game mode persists across state transitions; game state cares about lifecycle (menu vs play vs pause).
+- The Resonance game mode (separate concern; see `CONTEXT.md`) is *not* a game state — it lives in `GameModeManager`. The two state machines are orthogonal: game mode persists across state transitions; game state cares about lifecycle (menu vs play vs pause).
