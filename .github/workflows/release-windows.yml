@@ -57,6 +57,11 @@ jobs:
           $content = Get-Content export_presets.cfg
           $content = $content -replace 'application/file_version="[^"]*"', "application/file_version=`"$v`""
           $content = $content -replace 'application/product_version="[^"]*"', "application/product_version=`"$v`""
+          # Disable Windows-resource patching in CI: it requires rcedit configured
+          # via Editor Settings (export/windows/rcedit), which a fresh runner does
+          # not have. With it enabled, --headless export bails after printing only
+          # the version banner and produces no .exe.
+          $content = $content -replace 'application/modify_resources=true', 'application/modify_resources=false'
           $content | Set-Content export_presets.cfg
 
       - name: Restore .NET dependencies
@@ -103,8 +108,23 @@ jobs:
             }
           }
 
-          & $godotExe --headless --export-release "Windows Desktop" bin/Nightwalk.exe
+          # Capture combined stdout+stderr so we can see why Godot bailed if
+          # the .exe is missing afterwards (banner-only output gives us nothing).
+          $ErrorActionPreference = 'Continue'
+          & $godotExe --headless --export-release "Windows Desktop" bin/Nightwalk.exe 2>&1 | Tee-Object -FilePath export.log
+          $exportExit = $LASTEXITCODE
+
           if (-not (Test-Path bin/Nightwalk.exe)) {
+            Write-Host "::group::godot export diagnostics"
+            Write-Host "godot exit code: $exportExit"
+            Write-Host "--- export.log ---"
+            if (Test-Path export.log) { Get-Content export.log } else { Write-Host "(no export.log produced)" }
+            Write-Host "--- bin/ contents ---"
+            if (Test-Path bin) { Get-ChildItem bin -Recurse | Format-Table -AutoSize | Out-String } else { Write-Host "(bin/ missing)" }
+            $templatesRoot = Join-Path $env:APPDATA 'Godot\export_templates'
+            Write-Host "--- export_templates ($templatesRoot) ---"
+            if (Test-Path $templatesRoot) { Get-ChildItem $templatesRoot -Recurse -Depth 1 | Format-Table -AutoSize | Out-String } else { Write-Host "(no templates dir)" }
+            Write-Host "::endgroup::"
             Write-Error "Export produced no exe"
             exit 1
           }
