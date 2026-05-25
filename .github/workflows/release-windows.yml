@@ -78,16 +78,12 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
 
-      - name: Build Godot C# solution
-        shell: pwsh
-        run: |
-          # Required for C# projects before --import / --export will work.
-          # Per chickensoft-games/setup-godot README — non-zero exit is tolerated.
-          # No pipeline redirection: godot is exposed as an extension-less
-          # binary which PowerShell refuses to run inside a pipeline.
-          $ErrorActionPreference = 'Continue'
-          godot --headless --build-solutions --quit
-          Write-Host "build-solutions exit code: $LASTEXITCODE"
+      - name: Build C# project (ExportRelease)
+        run: dotnet build Nightwalk.csproj -c ExportRelease --no-restore
+        # The Godot.NET.Sdk csproj auto-defines an ExportRelease config
+        # whose output ends up at .godot/mono/temp/bin/ExportRelease/.
+        # `godot --export-release` reads from there; without this build it
+        # fails with ".NET: Failed to load project assembly".
 
       - name: Godot headless import pass
         shell: pwsh
