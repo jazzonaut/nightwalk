@@ -1,0 +1,91 @@
+# Skycraft ambient air-traffic system (ADR-0016)
+# Three altitude bands; pool-managed; hybrid Node3D/MultiMesh renderer.
+
+density = 50                       # User-facing slider (0-100). Scales pool linearly.
+
+[pool]
+max_pool_size = 120                # Upper bound at density=100 (per-profile share: 36 E / 60 C / 24 D)
+spawn_radius = 500.0               # Spawn at the far edge of the active region
+despawn_radius = 700.0             # Despawn radius (must be > spawn for hysteresis)
+spawn_check_interval = 0.15        # Faster fill so density=100 reaches steady-state in seconds
+
+# Per-profile share of the total pool. Ratios; sum <= 1.
+[mix]
+express = 0.10
+commuter = 0.40
+drifter = 0.50
+
+# Express — high free-flight, never lands. Sits above non-downtown rooftops; downtown
+# cluster super-towers (300m+, rarely up to ~450m) can still pierce this band — accepted
+# as ambient flavor, since lifting Express clear of all worldgen max heights makes the
+# layer read as too distant.
+[express]
+altitude_min = 240.0
+altitude_max = 300.0
+speed = 32.0
+acceleration = 8.0
+landing_chance = 0.0
+accent_color = "#80E0FF"           # Cyan
+base_scale = 1.0
+
+# Commuter — mid band, follows road grid (axis-locked road-walk like Drifter). Cruises
+# above the road network at this altitude; descends to rooftops via short approach from
+# the road bordering the building's plot. Rooftop landing POIs are filtered to rooftops
+# strictly below the cruise band so the descent doesn't graze taller neighbours.
+[commuter]
+altitude_min = 110.0
+altitude_max = 180.0
+speed = 18.0
+acceleration = 6.0
+landing_chance = 0.4
+accent_color = "#FFB060"           # Warm amber
+base_scale = 1.0
+
+# Drifter — low band, road corridors only, frequent landings.
+[drifter]
+altitude_min = 7.0
+altitude_max = 20.0
+speed = 10.0
+acceleration = 5.0
+landing_chance = 0.75
+accent_color = "#FF60C0"           # Magenta
+base_scale = 1.0
+
+[landing]
+approach_radius = 30.0
+settle_altitude = 1.5
+descent_speed = 6.0
+takeoff_speed = 6.0
+takeoff_clearance = 30.0
+commuter_dwell_min = 4.0
+commuter_dwell_max = 10.0
+drifter_dwell_min = 10.0
+drifter_dwell_max = 30.0
+
+[render]
+near_tier_distance = 150.0
+near_tier_hysteresis = 20.0
+headlight_range = 60.0
+headlight_cone_degrees = 25.0
+headlight_energy = 4.0
+headlight_color = "#CDE7FF"        # Unified cool white-blue
+backlight_range = 4.0
+backlight_energy = 1.5
+backlight_color = "#FF7A30"        # Unified warm amber
+accent_hue_jitter = 15.0
+scale_jitter = 0.05
+
+# Road-grid turn geometry (Drifter + Commuter). Tuned to road scale, not per-profile.
+[turn]
+radius = 9.0                       # Arc radius (m). Matches a banked road turn at this scale.
+decel_distance = 28.0              # Runway before the curve where cruise bleeds to curve speed.
+curve_speed_factor = 0.45          # Fraction of cruise speed held through the arc.
+lane_offset_magnitude = 2.0        # Right-hand-traffic lane offset from centerline (m).
+
+[poi]
+min_rooftop_area = 60.0
+rooftop_mark_chance = 0.35
+road_mark_chance = 0.25
+express_waypoints_per_chunk = 2
+commuter_waypoints_per_chunk = 2
+

@@ -58,31 +58,6 @@ jobs:
           $content = $content -replace 'application/file_version="[^"]*"', "application/file_version=`"$v`""
           $content = $content -replace 'application/product_version="[^"]*"', "application/product_version=`"$v`""
           $content | Set-Content export_presets.cfg
-          Write-Host "Updated export_presets.cfg with version $v"
-
-      - name: Toolchain diagnostics
-        shell: pwsh
-        run: |
-          Write-Host "Working directory: $(Get-Location)"
-          $godot = Get-Command godot -ErrorAction SilentlyContinue
-          if ($godot) { Write-Host "godot resolves to: $($godot.Source)" } else { Write-Host "godot NOT FOUND ON PATH" }
-          $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
-          if ($dotnet) { Write-Host "dotnet resolves to: $($dotnet.Source)" } else { Write-Host "dotnet NOT FOUND ON PATH" }
-          Write-Host "godot --version:"
-          godot --version
-          Write-Host "dotnet --version:"
-          dotnet --version
-          Write-Host "===== dotnet --list-runtimes ====="
-          dotnet --list-runtimes
-          Write-Host "===== dotnet --list-sdks ====="
-          dotnet --list-sdks
-          Write-Host "===== Microsoft.NETCore.App shared dirs ====="
-          $sharedRoot = "C:\Program Files\dotnet\shared\Microsoft.NETCore.App"
-          if (Test-Path $sharedRoot) {
-            Get-ChildItem $sharedRoot | Format-Table Name | Out-Host
-          } else {
-            Write-Host "(no $sharedRoot directory)"
-          }
 
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
@@ -93,21 +68,17 @@ jobs:
       - name: Generate Godot C# bindings
         shell: pwsh
         run: |
-          # Required step between `dotnet build` and `godot --export-release`
-          # for .NET projects (per godotengine/godot#92267 community workaround).
-          # build-solutions populates GodotSharp's editor-API bindings used by
-          # the export pipeline; without it godot reports "Failed to load
-          # project assembly" even when the project assembly exists.
+          # Required for .NET projects between `dotnet build` and
+          # `godot --export-release`. Without this, the export step reports
+          # "Failed to load project assembly" (godotengine/godot#92267).
           $ErrorActionPreference = 'Continue'
           godot --headless --build-solutions --quit
-          Write-Host "build-solutions exit code: $LASTEXITCODE"
 
       - name: Godot headless import pass
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Continue'
           godot --headless --import
-          Write-Host "Import exit code: $LASTEXITCODE"
           if (-not (Test-Path .godot)) {
             Write-Error ".godot/ cache directory was not produced"
             exit 1
@@ -116,77 +87,25 @@ jobs:
       - name: Export Windows build
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
           New-Item -ItemType Directory -Force -Path bin | Out-Null
 
-          Write-Host "===== Pre-export sanity ====="
-          Write-Host "PWD: $(Get-Location)"
-          Write-Host "project.godot present: $(Test-Path project.godot)"
-          $resolved = (Get-Command godot -ErrorAction SilentlyContinue).Source
-          Write-Host "godot resolves to: $resolved"
-
-          Write-Host "===== Export templates check ====="
-          $templatesRoot = "$env:APPDATA\Godot\export_templates"
-          if (Test-Path $templatesRoot) {
-            Get-ChildItem $templatesRoot -Recurse -Depth 1 | Format-Table Mode, Name | Out-Host
-          } else {
-            Write-Host "(no $templatesRoot directory)"
-          }
-
-          Write-Host "===== ExportRelease dir (flat) ====="
-          $exportDir = ".godot/mono/temp/bin/ExportRelease"
-          if (Test-Path $exportDir) {
-            Get-ChildItem $exportDir -File | Sort-Object Name | Format-Table Name, Length | Out-Host
-            Write-Host "Subdirs:"
-            Get-ChildItem $exportDir -Directory | Format-Table Name | Out-Host
-          } else {
-            Write-Host "(no $exportDir directory)"
-          }
-
-          # The chickensoft-games/setup-godot action exposes 'godot' as an
-          # extension-less hardlink. PowerShell silently drops invocations
-          # of that alias when a space-containing arg is involved. Create
-          # an .exe sibling next to the alias (same directory) so godot
-          # still finds GodotSharp/ relative to its own location, while
-          # giving PowerShell a sane extension to invoke.
-          Write-Host "===== Preparing godot.exe ====="
-          $godotAlias = (Get-Command godot -ErrorAction SilentlyContinue).Source
-          if (-not $godotAlias -or -not (Test-Path $godotAlias)) {
-            Write-Error "Cannot resolve godot from PATH"
-            exit 1
-          }
-          Write-Host "Alias source: $godotAlias"
+          # chickensoft-games/setup-godot exposes 'godot' as an extension-less
+          # hardlink. PowerShell silently drops invocations of it when an arg
+          # with a space ("Windows Desktop") is passed. Create a .exe sibling
+          # next to the alias so GodotSharp/ stays resolvable and PS treats
+          # it as a normal executable.
+          $godotAlias = (Get-Command godot).Source
           $godotExe = "$godotAlias.exe"
           if (-not (Test-Path $godotExe)) {
-            # Same-volume hardlink: instant, zero copy
             $null = New-Item -ItemType HardLink -Path $godotExe -Value $godotAlias -ErrorAction SilentlyContinue
             if (-not (Test-Path $godotExe)) {
-              # Hardlink can fail if filesystem doesn't support it; fall back to copy
               Copy-Item -Path $godotAlias -Destination $godotExe -Force
             }
           }
-          Write-Host "godot.exe: $godotExe"
-          $sharpDir = Join-Path (Split-Path $godotAlias -Parent) "GodotSharp"
-          Write-Host "GodotSharp dir: $sharpDir (exists: $(Test-Path $sharpDir))"
 
-          Write-Host "===== Running godot export ====="
-          # Tee-Object pipeline works now that we have a .exe-suffixed binary
-          # (PowerShell refused the pipeline for the extension-less alias).
-          $logFile = Join-Path $env:RUNNER_TEMP "godot-export.log"
-          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe 2>&1 | Tee-Object -FilePath $logFile
-          $exitCode = $LASTEXITCODE
-          Write-Host "===== Export exit code: $exitCode ====="
-          Write-Host "===== Captured log line count: $((Get-Content $logFile -ErrorAction SilentlyContinue | Measure-Object -Line).Lines) ====="
-
-          Write-Host "===== bin/ contents after export ====="
-          if (Test-Path bin) {
-            Get-ChildItem bin -Recurse | Format-Table Mode, Length, Name | Out-Host
-          } else {
-            Write-Host "(bin/ does not exist)"
-          }
-
+          & $godotExe --headless --export-release "Windows Desktop" bin/Nightwalk.exe
           if (-not (Test-Path bin/Nightwalk.exe)) {
-            Write-Error "Export produced no exe — see godot output above"
+            Write-Error "Export produced no exe"
             exit 1
           }
 
@@ -199,8 +118,6 @@ jobs:
           Copy-Item bin/* -Destination $stage -Recurse
           Copy-Item LICENSE, README.md -Destination $stage
           Compress-Archive -Path $stage -DestinationPath "Nightwalk-$v-windows.zip"
-          Write-Host "Zip contents:"
-          (Get-Item "Nightwalk-$v-windows.zip").Length
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

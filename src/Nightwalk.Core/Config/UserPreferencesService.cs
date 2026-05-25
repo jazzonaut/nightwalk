@@ -125,7 +125,7 @@ public sealed class UserPreferencesService
     /// </summary>
     public void ResetAllToDefaults()
     {
-        var configNames = new[] { "core", "physics", "gameplay", "audio", "tools", "aliveness", "beacons" };
+        var configNames = new[] { "core", "physics", "gameplay", "audio", "tools", "aliveness", "beacons", "skycraft" };
 
         lock (_lock)
         {

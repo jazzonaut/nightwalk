@@ -2,6 +2,7 @@
 
 [debug]
 show_fps = true
+hide_game_mode_selection = true
 logging_enabled = true
 logging_categories = []  # Empty = all categories; or specify e.g. ["Chunk", "Audio"]
 
@@ -137,7 +138,7 @@ vignette_softness = 0.45
 vignette_color = "#000008"
 
 # Post-processing: Film Grain - barely visible noise
-film_grain_enabled = true
+film_grain_enabled = false
 film_grain_intensity = 0.06
 film_grain_speed = 2.5
 

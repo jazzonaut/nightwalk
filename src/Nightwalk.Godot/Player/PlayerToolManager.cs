@@ -190,10 +190,72 @@ public sealed partial class PlayerToolManager : Node3D
 
     private void RegisterDefaultTools()
     {
+        // Mode-agnostic tools only. Decoy is gated by game mode (it emits DecoyPingEvent
+        // which only ResonanceMode consumes — useless in Silence) and registered via
+        // SyncToolsForMode on the Playing-state transition.
         RegisterTool(new SpotlightTool());
         RegisterTool(new PrismTool());
         RegisterTool(new ZiplineTool());
-        RegisterTool(new DecoyTool());
+    }
+
+    /// <summary>
+    /// Adds or removes mode-specific tools based on the active game mode. Called by
+    /// GameRoot on game-state transitions (Playing / MainMenu). Idempotent — safe to
+    /// call repeatedly with the same mode.
+    /// </summary>
+    public void SyncToolsForMode(string? activeModeId)
+    {
+        bool wantsDecoy = activeModeId == "resonance";
+        int decoyIndex = FindToolIndex(ToolIds.Decoy);
+        bool hasDecoy = decoyIndex >= 0;
+
+        if (wantsDecoy && !hasDecoy)
+        {
+            RegisterTool(new DecoyTool());
+        }
+        else if (!wantsDecoy && hasDecoy)
+        {
+            UnregisterToolAt(decoyIndex);
+        }
+    }
+
+    private int FindToolIndex(string toolId)
+    {
+        for (int i = 0; i < _tools.Count; i++)
+        {
+            if (_tools[i].Id == toolId) return i;
+        }
+        return -1;
+    }
+
+    private void UnregisterToolAt(int index)
+    {
+        var tool = _tools[index];
+
+        // If it's the current tool, switch off first so Exit() runs cleanly.
+        if (_currentIndex == index)
+        {
+            SetTool(-1);
+        }
+        else if (_currentIndex > index)
+        {
+            // Removing an earlier tool shifts later indices down by one.
+            _currentIndex--;
+        }
+
+        if (tool is DecoyTool decoyTool)
+        {
+            decoyTool.ClearAllDecoys();
+        }
+
+        _tools.RemoveAt(index);
+
+        if (tool is Node node)
+        {
+            node.QueueFree();
+        }
+
+        Log.Debug(LogCategory.Entity, $"Unregistered tool: {tool.DisplayName}");
     }
 
     /// <summary>

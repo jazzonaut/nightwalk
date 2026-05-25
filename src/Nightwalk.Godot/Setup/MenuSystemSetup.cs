@@ -77,6 +77,7 @@ public static class MenuSystemSetup
         scanner.RegisterConfig("audio", () => data.Audio);
         scanner.RegisterConfig("physics", () => data.Physics);
         scanner.RegisterConfig("gameplay", () => data.Gameplay);
+        scanner.RegisterConfig("skycraft", () => data.Skycraft);
 
         // Initialize settings menu with scanner and preferences
         settingsMenu.Initialize(scanner, data.UserPreferences!);
@@ -136,6 +137,9 @@ public static class MenuSystemSetup
         {
             newGameMenu.SetSelectedMode(gameModeManager.PendingModeId ?? "silence");
         }
+
+        // Live preference: hide the GAME MODE section on the New Game screen when set.
+        newGameMenu.SetHideModeSelectionResolver(() => data.Core.Debug.HideGameModeSelection);
 
         // Wire up mode selection
         newGameMenu.OnModeSelected += (modeId) =>

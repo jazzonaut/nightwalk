@@ -45,6 +45,7 @@ Algorithmic decisions inside specific gameplay systems.
 | [0010](0010-difficulty-multiplier-service.md) | Difficulty as a multiplier service | Central `DifficultyService` with four hardcoded multiplier curves (Observer/Explorer/Wanderer/Architect). Scaled accessors + flag short-circuits. |
 | [0011](0011-beacon-beam-routing.md) | Beacon beam routing — iterative ray-march with prism snap | Discrete walk through prisms, final physics raycast to terminal geometry. Snap threshold catches "nearby" prisms; visited set prevents loops. |
 | [0012](0012-zipline-physics.md) | Zipline physics — parametric `t` + gravity-slide + climb-efficiency | Position is `_cableT ∈ [0, 1]`; velocity is along-cable. Climb efficiency floors at `MinClimbEfficiency`; sprint multiplies both slide and climb. |
+| [0016](0016-skycraft-air-traffic.md) | Skycraft ambient air-traffic system | Pool-managed flying NPCs in three profiles (Express/Commuter/Drifter); hybrid near-`Node3D` / far-`MultiMesh` rendering with shadowless near-tier spotlights; Drifters route along existing `RoadSegment` graph; collision-freedom is structural; no Resonance coupling. |
 
 ## Rendering
 
@@ -59,7 +60,7 @@ The chunk-construction story.
 
 ## How to add a new ADR
 
-1. Pick the next unused number (currently 0016). Numbers never reuse — even if an ADR is deleted (like 0005 was), its number stays vacant.
+1. Pick the next unused number (currently 0017). Numbers never reuse — even if an ADR is deleted (like 0005 was), its number stays vacant.
 2. File name: `NNNN-kebab-case-title.md`.
 3. Nygard format: `Status` / `Context` / `Decision` / `Consequences`. Include an "Alternatives considered" subsection in `Context` when there were realistic options.
 4. Status: `Accepted (YYYY-MM-DD)` for fresh decisions; `Accepted (retrofitted YYYY-MM)` for after-the-fact ADRs grounded in code that already exists.

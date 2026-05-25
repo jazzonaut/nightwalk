@@ -36,6 +36,7 @@ public sealed class GameDataService : IDisposable
     public BeaconsConfig Beacons { get; private set; } = null!;
     public AlivenessConfig Aliveness { get; private set; } = null!;
     public ResonanceConfig Resonance { get; private set; } = null!;
+    public SkycraftConfig Skycraft { get; private set; } = null!;
 
     /// <summary>
     /// User preferences service for setting and saving user overrides.
@@ -133,6 +134,7 @@ public sealed class GameDataService : IDisposable
         Beacons = _config.Load<BeaconsConfig>("beacons");
         Aliveness = _config.Load<AlivenessConfig>("aliveness");
         Resonance = _config.Load<ResonanceConfig>("resonance");
+        Skycraft = _config.Load<SkycraftConfig>("skycraft");
     }
 
     /// <summary>
@@ -151,6 +153,7 @@ public sealed class GameDataService : IDisposable
         var beacons = _config.Reload<BeaconsConfig>("beacons");
         var aliveness = _config.Reload<AlivenessConfig>("aliveness");
         var resonance = _config.Reload<ResonanceConfig>("resonance");
+        var skycraft = _config.Reload<SkycraftConfig>("skycraft");
 
         // All succeeded - commit changes
         Core = core;
@@ -162,6 +165,7 @@ public sealed class GameDataService : IDisposable
         Beacons = beacons;
         Aliveness = aliveness;
         Resonance = resonance;
+        Skycraft = skycraft;
     }
 
     public T LoadCustom<T>(string name) where T : class, new()

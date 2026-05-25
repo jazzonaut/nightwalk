@@ -56,6 +56,8 @@ Terms are listed alphabetically. Bold marks the canonical noun used in code and 
 | **Seeker** | Resonance NPC that investigates noise pings and reports detection to `ExposureMeter`. `SeekerController`, `SeekerMovement`. |
 | **Signal Beam** | The routed beam emitted from an active source beacon through prisms toward a target. `SignalBeamRenderer`. |
 | **Silence** | Default game mode — base exploration + puzzles, no Resonance mechanics. |
+| **Skycraft** | Ambient sci-fi flying vehicles that populate the night sky. Traverse the city between waypoints in varied patterns at different altitudes and speeds, occasionally landing on rooftops or roads before taking off again. Emit headlight cones and backlight glows. Distinct from `Seekers`, which are Resonance gameplay NPCs. `SkycraftController`, `SkycraftRenderer`. |
+| **Skycraft Profile** | One of `Express` (high, fast, never lands), `Commuter` (mid, medium, occasional landings), or `Drifter` (low, slow, frequent landings between buildings). Determines a Skycraft's altitude band, speed, path style, landing affinity, and visual silhouette. `SkycraftProfile`. |
 | **Source** / **Target** | A beacon's role during an active sync. The activated beacon is the source; matching-frequency beacons within range are candidate targets. |
 | **Super-Chunk** | 2000m × 2000m coarse grid used for cluster placement. `SuperChunkCoord`. |
 | **Sync** | A completed routing of a beacon signal through prisms to a same-frequency target. The sync awards points and triggers a flyby. |

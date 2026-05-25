@@ -56,6 +56,7 @@ public partial class GameRoot : Node3D
     private ScreensaverController? _screensaverController;
     private ResonanceModeSystem? _resonanceModeSystem;
     private ResonanceVisualEffects? _resonanceVisualEffects;
+    private SkycraftSystemResult? _skycraftResult;
 
     public override void _Ready()
     {
@@ -217,7 +218,15 @@ public partial class GameRoot : Node3D
         _scoreEffectSystem.Configure(_postProcessResult.Material, _presetManager, _eventBus, _worldEnvironment, _data);
         AddChild(_scoreEffectSystem);
 
-        // 11f. Setup screensaver controller
+        // 11f. Setup Skycraft ambient air-traffic system (ADR-0016)
+        _skycraftResult = SkycraftSystemSetup.Configure(
+            this,
+            _eventBus,
+            _worldResult.ChunkManager,
+            _data.Skycraft,
+            _data.Worldgen.Chunks.Size);
+
+        // 11g. Setup screensaver controller
         _screensaverController = new ScreensaverController(_data.Gameplay.Screensaver);
         _screensaverController.SetCamera(_playerResult.Player.Camera!, _playerResult.Player);
         _screensaverController.SetChunkManager(_worldResult.ChunkManager);
@@ -290,6 +299,20 @@ public partial class GameRoot : Node3D
             if (e.NewStateName == GameStateNames.Playing)
             {
                 _gameHUD.Configure(_data.Core.Debug.ShowFps, _difficultyService.IsScoreHUDHidden);
+            }
+        }
+
+        // Sync mode-gated tools (Decoy is Resonance-only). Runs after the menu flow has
+        // called ActivatePendingMode, so ActiveMode is current here.
+        if (_playerResult?.ToolManager != null)
+        {
+            if (e.NewStateName == GameStateNames.Playing)
+            {
+                _playerResult.ToolManager.SyncToolsForMode(_gameModeManager.ActiveMode?.Id);
+            }
+            else if (e.NewStateName == GameStateNames.MainMenu)
+            {
+                _playerResult.ToolManager.SyncToolsForMode(null);
             }
         }
 
@@ -375,6 +398,9 @@ public partial class GameRoot : Node3D
         // Reconfigure screensaver controller
         _screensaverController?.Configure(_data.Gameplay.Screensaver);
 
+        // Reconfigure Skycraft (density slider, mix, profile band tuning, render thresholds)
+        _skycraftResult?.Reconfigure(_data.Skycraft);
+
         // Refresh settings menu values (in case config was edited externally)
         _menuResult?.SettingsMenu.RefreshValues();
 
@@ -404,6 +430,10 @@ public partial class GameRoot : Node3D
         _gameplayResult?.Cleanup();
         _gameplayResult = null;
 
+        // Cleanup Skycraft (disconnects from old ChunkManager; will be re-created below)
+        _skycraftResult?.Cleanup();
+        _skycraftResult = null;
+
         // Cleanup old world (renderer, world state)
         _worldResult?.Cleanup();
         _worldResult = null;
@@ -417,6 +447,14 @@ public partial class GameRoot : Node3D
         // Recreate gameplay systems connected to new ChunkManager
         _gameplayResult = GameplaySystemsSetup.Configure(this, _eventBus, _worldResult, _data, _difficultyService);
         _gameplayResult.SetSfxManager(_audioResult?.SfxManager);
+
+        // Recreate Skycraft system attached to the new ChunkManager
+        _skycraftResult = SkycraftSystemSetup.Configure(
+            this,
+            _eventBus,
+            _worldResult.ChunkManager,
+            _data.Skycraft,
+            _data.Worldgen.Chunks.Size);
 
         // Re-assign score service and difficulty service to player and tool manager (old one was cleaned up)
         _playerResult?.Player.SetScoreService(_gameplayResult.ScoreService);
@@ -479,6 +517,7 @@ public partial class GameRoot : Node3D
         _gameModeManager.Reset();
         _resonanceModeSystem?.Reset();
         _resonanceVisualEffects?.Reset();
+        _skycraftResult?.Reset();
         _gameHUD?.Reset();
     }
 
@@ -536,6 +575,11 @@ public partial class GameRoot : Node3D
             // Still use player position for gameplay logic
             var playerPos = _playerResult.Player.GlobalPosition;
             _gameplayResult?.Update(playerPos, _playerResult.Player.IsOnFloor());
+
+            // Update Skycraft ambient simulation (ADR-0016). Spawns happen at the
+            // active region's far edge, so we feed the player's actual position even
+            // during screensaver — Skycraft are ambient and shouldn't follow the camera.
+            _skycraftResult?.Update((float)delta, playerPos);
         }
 
         // Update game mode
@@ -557,10 +601,21 @@ public partial class GameRoot : Node3D
 
         if (!_gameStarted || _worldResult == null) return;
 
-        // Update camera position for LOD calculations, then process progressive rendering
+        // Update camera position for LOD calculations, then process progressive rendering.
+        // cameraPos is the player's position (existing ChunkRenderer contract). Skycraft's
+        // tier-swap needs the actual rendering camera instead — during screensaver the
+        // camera is far from the player and near-tier nodes must follow the lens, not the
+        // body. We resolve that separately rather than changing the ChunkRenderer contract.
         var cameraPos = _playerResult?.Player.GlobalPosition ?? Vector3.Zero;
         _worldResult.ChunkRenderer.SetCameraPosition(cameraPos);
         _worldResult.ChunkRenderer.ProcessRenderQueue();
+
+        Vector3 skycraftCameraPos;
+        if (_screensaverController?.IsActive == true)
+            skycraftCameraPos = _screensaverController.CameraPosition;
+        else
+            skycraftCameraPos = _playerResult?.Player.Camera?.GlobalPosition ?? cameraPos;
+        _skycraftResult?.UpdateCamera(skycraftCameraPos);
 
         // Calculate interpolation factor between physics ticks
         float tickFraction = 0f;
@@ -682,6 +737,7 @@ public partial class GameRoot : Node3D
 
         // Cleanup in reverse order of initialization
         _menuResult?.Cleanup();
+        _skycraftResult?.Cleanup();
         _resonanceVisualEffects?.Cleanup();
         _resonanceModeSystem?.Cleanup();
         _gameplayResult?.Cleanup();
@@ -699,6 +755,7 @@ public partial class GameRoot : Node3D
 
         // Clear all references
         _menuResult = null;
+        _skycraftResult = null;
         _gameplayResult = null;
         _playerResult = null;
         _worldResult = null;

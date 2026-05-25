@@ -30,6 +30,9 @@ public sealed partial class NewGameScreen : UIScreen
     private string _selectedMode = "silence";
     private PanelContainer? _silenceModeCard;
     private PanelContainer? _resonanceModeCard;
+    private Label? _modeHeadingLabel;
+    private HBoxContainer? _modeContainer;
+    private Func<bool>? _hideModeSelectionResolver;
 
     protected override void BuildContent(Control root)
     {
@@ -51,19 +54,19 @@ public sealed partial class NewGameScreen : UIScreen
         mainContainer.AddChild(titleLabel);
 
         // Subheading: "GAME MODE"
-        var modeLabel = new Label
+        _modeHeadingLabel = new Label
         {
             Text = "GAME MODE",
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        UITheme.ApplyLabelStyle(modeLabel, UITheme.SubheadingFontSize, UITheme.TextColor);
-        mainContainer.AddChild(modeLabel);
+        UITheme.ApplyLabelStyle(_modeHeadingLabel, UITheme.SubheadingFontSize, UITheme.TextColor);
+        mainContainer.AddChild(_modeHeadingLabel);
 
         // Mode cards container (horizontal, centered)
-        var modeContainer = new HBoxContainer { Name = "ModeCards" };
-        modeContainer.AddThemeConstantOverride("separation", UITheme.MediumPadding);
-        modeContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-        mainContainer.AddChild(modeContainer);
+        _modeContainer = new HBoxContainer { Name = "ModeCards" };
+        _modeContainer.AddThemeConstantOverride("separation", UITheme.MediumPadding);
+        _modeContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        mainContainer.AddChild(_modeContainer);
 
         // Create mode cards
         _silenceModeCard = CreateModeCard(
@@ -73,7 +76,7 @@ public sealed partial class NewGameScreen : UIScreen
             SilenceColor,
             new[] { "No watchers", "No pressure", "Classic gameplay" }
         );
-        modeContainer.AddChild(_silenceModeCard);
+        _modeContainer.AddChild(_silenceModeCard);
 
         _resonanceModeCard = CreateModeCard(
             "resonance",
@@ -82,7 +85,7 @@ public sealed partial class NewGameScreen : UIScreen
             ResonanceColor,
             new[] { "Alert system", "Warden + Seekers", "Stealth mechanics" }
         );
-        modeContainer.AddChild(_resonanceModeCard);
+        _modeContainer.AddChild(_resonanceModeCard);
 
         // Subheading: "DIFFICULTY"
         var difficultyLabel = new Label
@@ -398,6 +401,7 @@ public sealed partial class NewGameScreen : UIScreen
         base.OnBecameActive();
         Input.MouseMode = Input.MouseModeEnum.Visible;
         RefreshModeCardStyles();
+        RefreshModeSelectionVisibility();
     }
 
     /// <summary>
@@ -407,6 +411,23 @@ public sealed partial class NewGameScreen : UIScreen
     {
         if (string.IsNullOrEmpty(modeId)) return;
         _selectedMode = modeId;
+    }
+
+    /// <summary>
+    /// Provides a live resolver for the "hide game mode selection" preference.
+    /// Re-evaluated each time the screen becomes active so config changes apply immediately.
+    /// </summary>
+    public void SetHideModeSelectionResolver(Func<bool> resolver)
+    {
+        _hideModeSelectionResolver = resolver;
+        RefreshModeSelectionVisibility();
+    }
+
+    private void RefreshModeSelectionVisibility()
+    {
+        var hide = _hideModeSelectionResolver?.Invoke() ?? false;
+        if (_modeHeadingLabel != null) _modeHeadingLabel.Visible = !hide;
+        if (_modeContainer != null) _modeContainer.Visible = !hide;
     }
 
     public override void _Input(InputEvent @event)

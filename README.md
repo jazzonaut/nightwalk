@@ -1,8 +1,10 @@
 # Nightwalk
 
-A first-person cyberpunk rooftop-exploration game set in an endless procedurally generated night city. Single-player. Built solo in [Godot 4.6](https://godotengine.org/) with C# (.NET 8).
+A first-person cyberpunk rooftop-exploration game set in an endless procedurally generated night city. Single-player. Built solo in [Godot 4.6](https://godotengine.org/) with C# (.NET 10).
 
 ![Nightwalk screenshot](docs/media/screenshot01.jpg)
+
+[More screenshots →](docs/screenshots.md)
 
 > Hobby project, still evolving. Expect rough edges and missing content. Bug reports welcome via [Issues](https://github.com/jazzonaut/nightwalk/issues).
 
@@ -34,7 +36,7 @@ Solo hobby project, no commercial development, no committed roadmap. If you find
 Requirements:
 
 - Godot 4.6 with .NET (mono) build.
-- .NET 8 SDK.
+- .NET 10 SDK.
 
 Open `project.godot` in Godot. Build the C# project (Godot will invoke `dotnet build` on `Nightwalk.csproj`). Run the main scene (`scenes/Main.tscn`).
 

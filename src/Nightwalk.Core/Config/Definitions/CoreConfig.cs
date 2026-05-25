@@ -18,6 +18,11 @@ public sealed class DebugConfig
     [UserConfigurable(SettingsCategory.Gameplay, SettingsControlType.Toggle, Order = 10)]
     [SettingsDisplay(DisplayName = "Show FPS", Description = "Display frames per second counter on screen")]
     public bool ShowFps { get; set; }
+
+    [UserConfigurable(SettingsCategory.Gameplay, SettingsControlType.Toggle, Order = 11)]
+    [SettingsDisplay(DisplayName = "Hide Game Mode Selection", Description = "Hide the game mode cards on the New Game screen. Last-selected mode is kept.")]
+    public bool HideGameModeSelection { get; set; }
+
     public bool LoggingEnabled { get; set; }
     public string[] LoggingCategories { get; set; } = [];
 }
