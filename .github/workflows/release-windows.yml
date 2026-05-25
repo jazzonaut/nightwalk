@@ -38,10 +38,10 @@ jobs:
             exit 1
           }
 
-      - name: Set up .NET 8 SDK
+      - name: Set up .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Set up Godot 4.6.3 (.NET)
         uses: chickensoft-games/setup-godot@v2.4.1
@@ -170,9 +170,19 @@ jobs:
           Write-Host "GodotSharp dir: $sharpDir (exists: $(Test-Path $sharpDir))"
 
           Write-Host "===== Running godot export ====="
-          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
+          $logFile = Join-Path $env:RUNNER_TEMP "godot-export.log"
+          # *> captures all streams to file; avoids PS native-command stdout
+          # buffer truncation that's been swallowing output in earlier runs.
+          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe *> $logFile
           $exitCode = $LASTEXITCODE
           Write-Host "===== Export exit code: $exitCode ====="
+          Write-Host "===== godot output (from $logFile) ====="
+          if (Test-Path $logFile) {
+            Get-Content $logFile
+          } else {
+            Write-Host "(no log file produced)"
+          }
+          Write-Host "===== end godot output ====="
 
           Write-Host "===== bin/ contents after export ====="
           if (Test-Path bin) {
