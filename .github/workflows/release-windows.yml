@@ -122,12 +122,30 @@ jobs:
             Write-Host "(no $templatesRoot directory)"
           }
 
+          # The chickensoft-games/setup-godot action exposes 'godot' as an
+          # extension-less hardlink on Windows. PowerShell can invoke that
+          # alias for simple commands, but silently drops the call when an
+          # argument with a space ("Windows Desktop") is involved. Call the
+          # real .exe directly to sidestep PowerShell's native-arg-passing
+          # quirks with extension-less binaries.
+          Write-Host "===== Locating real Godot .exe ====="
+          $realGodot = Get-ChildItem -Path godot -Recurse -File -Filter "*.exe" -ErrorAction SilentlyContinue |
+                       Where-Object { $_.Name -like "Godot_*" -and $_.Name -notlike "*console*" } |
+                       Select-Object -First 1
+          if (-not $realGodot) {
+            Write-Host "Could not find Godot .exe in godot/. Directory contents:"
+            if (Test-Path godot) {
+              Get-ChildItem godot -Recurse -File | Format-Table Name, Length | Out-Host
+            } else {
+              Write-Host "(godot/ directory does not exist)"
+            }
+            Write-Error "Real Godot .exe not located"
+            exit 1
+          }
+          Write-Host "Real godot: $($realGodot.FullName)"
+
           Write-Host "===== Running godot export ====="
-          # Use --% stop-parsing token: PowerShell otherwise mangles the
-          # "Windows Desktop" preset name (arg containing a space) when
-          # combined with an extension-less native binary, and silently drops
-          # the call with no output and no exit code set.
-          godot --% --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
+          & $realGodot.FullName --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
           $exitCode = $LASTEXITCODE
           Write-Host "===== Export exit code: $exitCode ====="
 
