@@ -123,29 +123,24 @@ jobs:
           }
 
           # The chickensoft-games/setup-godot action exposes 'godot' as an
-          # extension-less hardlink on Windows. PowerShell can invoke that
-          # alias for simple commands, but silently drops the call when an
-          # argument with a space ("Windows Desktop") is involved. Call the
-          # real .exe directly to sidestep PowerShell's native-arg-passing
-          # quirks with extension-less binaries.
-          Write-Host "===== Locating real Godot .exe ====="
-          $realGodot = Get-ChildItem -Path godot -Recurse -File -Filter "*.exe" -ErrorAction SilentlyContinue |
-                       Where-Object { $_.Name -like "Godot_*" -and $_.Name -notlike "*console*" } |
-                       Select-Object -First 1
-          if (-not $realGodot) {
-            Write-Host "Could not find Godot .exe in godot/. Directory contents:"
-            if (Test-Path godot) {
-              Get-ChildItem godot -Recurse -File | Format-Table Name, Length | Out-Host
-            } else {
-              Write-Host "(godot/ directory does not exist)"
-            }
-            Write-Error "Real Godot .exe not located"
+          # extension-less hardlink. PowerShell can invoke it for simple
+          # commands but silently drops the call when an arg with a space
+          # ("Windows Desktop") is passed. Copy the binary to a path that
+          # ends in .exe so PowerShell treats it as a normal executable.
+          Write-Host "===== Preparing godot.exe ====="
+          $godotAlias = (Get-Command godot -ErrorAction SilentlyContinue).Source
+          if (-not $godotAlias -or -not (Test-Path $godotAlias)) {
+            Write-Error "Cannot resolve godot from PATH"
             exit 1
           }
-          Write-Host "Real godot: $($realGodot.FullName)"
+          Write-Host "Alias source: $godotAlias"
+          $godotExe = Join-Path $env:RUNNER_TEMP "godot.exe"
+          Copy-Item -Path $godotAlias -Destination $godotExe -Force
+          $copiedSize = (Get-Item $godotExe).Length
+          Write-Host "Copied to: $godotExe ($copiedSize bytes)"
 
           Write-Host "===== Running godot export ====="
-          & $realGodot.FullName --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
+          & $godotExe --headless --verbose --export-release "Windows Desktop" bin/Nightwalk.exe
           $exitCode = $LASTEXITCODE
           Write-Host "===== Export exit code: $exitCode ====="
 
