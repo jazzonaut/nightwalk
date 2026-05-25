@@ -1,0 +1,116 @@
+name: Release (Windows)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, no v prefix (e.g. 0.1.0 or 0.1.0-rc1)'
+        required: true
+        type: string
+      draft:
+        description: 'Create release as draft'
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        description: 'Mark release as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build & release Windows
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate version input
+        shell: pwsh
+        run: |
+          if ('${{ inputs.version }}' -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.\-]+)?$') {
+            Write-Error "Version must look like 0.1.0 or 0.1.0-rc1"
+            exit 1
+          }
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Set up Godot 4.6.3 (.NET)
+        uses: chickensoft-games/setup-godot@v2.4.1
+        with:
+          version: 4.6.3
+          use-dotnet: true
+          include-templates: true
+
+      - name: Inject version into export_presets.cfg
+        shell: pwsh
+        run: |
+          $v = '${{ inputs.version }}'
+          $content = Get-Content export_presets.cfg
+          $content = $content -replace 'application/file_version="[^"]*"', "application/file_version=`"$v`""
+          $content = $content -replace 'application/product_version="[^"]*"', "application/product_version=`"$v`""
+          $content | Set-Content export_presets.cfg
+          Write-Host "Updated export_presets.cfg with version $v"
+
+      - name: Godot headless import pass
+        shell: pwsh
+        run: |
+          # First-run import builds the .godot/ cache. Godot can exit non-zero
+          # on a fresh import even when it succeeds, so don't fail on exit code —
+          # verify the cache directory was produced instead.
+          $ErrorActionPreference = 'Continue'
+          godot --headless --import
+          if (-not (Test-Path .godot)) {
+            Write-Error "Godot --import did not produce a .godot/ cache directory"
+            exit 1
+          }
+
+      - name: Export Windows build
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path bin | Out-Null
+          godot --headless --export-release "Windows Desktop" bin/Nightwalk.exe
+          if (-not (Test-Path bin/Nightwalk.exe)) {
+            Write-Error "Export produced no exe"
+            exit 1
+          }
+          Write-Host "Build output:"
+          Get-ChildItem bin
+
+      - name: Stage release contents
+        shell: pwsh
+        run: |
+          $v = '${{ inputs.version }}'
+          $stage = "stage/Nightwalk-$v-windows"
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item bin/* -Destination $stage -Recurse
+          Copy-Item LICENSE, CREDITS.md, README.md -Destination $stage
+          Compress-Archive -Path $stage -DestinationPath "Nightwalk-$v-windows.zip"
+          Write-Host "Zip contents:"
+          (Get-Item "Nightwalk-$v-windows.zip").Length
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightwalk-windows-${{ inputs.version }}
+          path: Nightwalk-${{ inputs.version }}-windows.zip
+          retention-days: 30
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: Nightwalk v${{ inputs.version }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          files: Nightwalk-${{ inputs.version }}-windows.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
