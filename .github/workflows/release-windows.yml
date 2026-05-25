@@ -78,25 +78,26 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
 
-      - name: Build C# project (ExportRelease)
-        run: dotnet build Nightwalk.csproj -c ExportRelease --no-restore
-        # The Godot.NET.Sdk csproj auto-defines an ExportRelease config
-        # whose output ends up at .godot/mono/temp/bin/ExportRelease/.
-        # `godot --export-release` reads from there; without this build it
-        # fails with ".NET: Failed to load project assembly".
-
       - name: Godot headless import pass
         shell: pwsh
         run: |
+          # Import first so .godot/ exists before any C# build — Godot.NET.Sdk
+          # uses .godot/ to compute the assembly output path.
           $ErrorActionPreference = 'Continue'
           godot --headless --import
           Write-Host "Import exit code: $LASTEXITCODE"
-          Write-Host "Post-import directory listing:"
-          Get-ChildItem -Force | Select-Object Mode, Name
           if (-not (Test-Path .godot)) {
             Write-Error ".godot/ cache directory was not produced"
             exit 1
           }
+
+      - name: Build C# project (ExportRelease)
+        shell: pwsh
+        run: |
+          dotnet build Nightwalk.csproj -c ExportRelease --no-restore
+          Write-Host "===== Searching for Nightwalk.dll ====="
+          Get-ChildItem -Path . -Filter "Nightwalk.dll" -Recurse -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length, LastWriteTime | Format-Table | Out-Host
 
       - name: Export Windows build
         shell: pwsh
