@@ -78,20 +78,23 @@ jobs:
       - name: Point Godot editor settings at rcedit
         shell: pwsh
         run: |
-          # Godot reads export/windows/rcedit from editor_settings-4.tres. Fresh
-          # runners have no such file, so generate one with --headless --quit and
-          # then append the rcedit path.
-          $ErrorActionPreference = 'Continue'
-          godot --headless --quit *> $null
+          # Godot reads export/windows/rcedit from editor_settings-4.tres. Write
+          # a minimal file with just that key; Godot fills in defaults for the
+          # rest on first load. (godot --headless --quit does not generate this
+          # file because it doesn't run as the editor.)
           $settingsDir = Join-Path $env:APPDATA 'Godot'
-          $settingsFile = Get-ChildItem $settingsDir -Filter 'editor_settings-*.tres' -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $settingsFile) {
-            Write-Error "editor_settings-*.tres was not produced by godot --headless --quit (looked in $settingsDir)"
-            exit 1
-          }
+          New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+          $settingsFile = Join-Path $settingsDir 'editor_settings-4.tres'
           $rceditForward = $env:RCEDIT_PATH -replace '\\', '/'
-          Add-Content -Path $settingsFile.FullName -Value "export/windows/rcedit = `"$rceditForward`""
-          Write-Host "Patched $($settingsFile.FullName) with export/windows/rcedit = $rceditForward"
+          $tres = @"
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/windows/rcedit = "$rceditForward"
+"@
+          Set-Content -Path $settingsFile -Value $tres -Encoding utf8
+          Write-Host "Wrote $settingsFile"
+          Get-Content $settingsFile
 
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
