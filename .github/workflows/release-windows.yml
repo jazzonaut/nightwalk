@@ -86,13 +86,13 @@ jobs:
           New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
           $settingsFile = Join-Path $settingsDir 'editor_settings-4.tres'
           $rceditForward = $env:RCEDIT_PATH -replace '\\', '/'
-          $tres = @"
-[gd_resource type="EditorSettings" format=3]
-
-[resource]
-export/windows/rcedit = "$rceditForward"
-"@
-          Set-Content -Path $settingsFile -Value $tres -Encoding utf8
+          $lines = @(
+            '[gd_resource type="EditorSettings" format=3]',
+            '',
+            '[resource]',
+            "export/windows/rcedit = `"$rceditForward`""
+          )
+          Set-Content -Path $settingsFile -Value $lines -Encoding utf8
           Write-Host "Wrote $settingsFile"
           Get-Content $settingsFile
 
