@@ -57,12 +57,41 @@ jobs:
           $content = Get-Content export_presets.cfg
           $content = $content -replace 'application/file_version="[^"]*"', "application/file_version=`"$v`""
           $content = $content -replace 'application/product_version="[^"]*"', "application/product_version=`"$v`""
-          # Disable Windows-resource patching in CI: it requires rcedit configured
-          # via Editor Settings (export/windows/rcedit), which a fresh runner does
-          # not have. With it enabled, --headless export bails after printing only
-          # the version banner and produces no .exe.
-          $content = $content -replace 'application/modify_resources=true', 'application/modify_resources=false'
           $content | Set-Content export_presets.cfg
+
+      - name: Install rcedit
+        shell: pwsh
+        run: |
+          # rcedit patches the exported .exe's Windows resources (icon, version,
+          # company name, etc). Godot invokes it when application/modify_resources
+          # is true and the editor setting export/windows/rcedit points at it.
+          $tools = Join-Path $env:GITHUB_WORKSPACE 'tools'
+          New-Item -ItemType Directory -Force -Path $tools | Out-Null
+          $rcedit = Join-Path $tools 'rcedit-x64.exe'
+          Invoke-WebRequest -Uri 'https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe' -OutFile $rcedit
+          if (-not (Test-Path $rcedit)) {
+            Write-Error "rcedit download failed"
+            exit 1
+          }
+          "RCEDIT_PATH=$rcedit" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Point Godot editor settings at rcedit
+        shell: pwsh
+        run: |
+          # Godot reads export/windows/rcedit from editor_settings-4.tres. Fresh
+          # runners have no such file, so generate one with --headless --quit and
+          # then append the rcedit path.
+          $ErrorActionPreference = 'Continue'
+          godot --headless --quit *> $null
+          $settingsDir = Join-Path $env:APPDATA 'Godot'
+          $settingsFile = Get-ChildItem $settingsDir -Filter 'editor_settings-*.tres' -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $settingsFile) {
+            Write-Error "editor_settings-*.tres was not produced by godot --headless --quit (looked in $settingsDir)"
+            exit 1
+          }
+          $rceditForward = $env:RCEDIT_PATH -replace '\\', '/'
+          Add-Content -Path $settingsFile.FullName -Value "export/windows/rcedit = `"$rceditForward`""
+          Write-Host "Patched $($settingsFile.FullName) with export/windows/rcedit = $rceditForward"
 
       - name: Restore .NET dependencies
         run: dotnet restore Nightwalk.csproj
